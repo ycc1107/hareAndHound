@@ -3,4 +3,4 @@ hareAndHound
 
 hare and hound game
 
-algorthm: min max aphle beta puring
+Algorithm : min max alpha beta pruning
