@@ -14,51 +14,20 @@ namespace hareAhoundGame.ProjectCode
 {
     public class MoveObj : CodeBaseClass
     {
-        #region Private field
-
-        private Rectangle hareArea;
-        private Rectangle hound1Area;
-        private Rectangle hound2Area;
-        private Rectangle hound3Area;
-        
-        private int result;
-
-
-        #endregion 
-
-
-        public MoveObj()
+        public bool leftClick
         {
-            result = -1;
-
-            hareArea = new Rectangle((int)harePosition.X, (int)harePosition.Y, 50, 50);
-            hound1Area = new Rectangle((int)hound1Position.X, (int)hound1Position.Y, 50, 50);
-            hound2Area = new Rectangle((int)hound2Position.X, (int)hound2Position.Y, 50, 50);
-            hound3Area = new Rectangle((int)hound3Position.X, (int)hound3Position.Y, 50, 50);
-
-        }
-        public int CheckTouch()
-        {
-            if (hareArea.Contains(mousePosiiton))
-            {
-                result = ReturnPosition.inHare;
-            }
-            else if(hound1Area.Contains(mousePosiiton))
-            {
-                result = ReturnPosition.inHound1;
-            }
-            else if (hound2Area.Contains(mousePosiiton))
-            {
-                result = ReturnPosition.inHound2;
-            }
-            else if (hound3Area.Contains(mousePosiiton))
-            {
-                result = ReturnPosition.inHound3;
-            }
-
-            return result;
+            get { return currentState.LeftButton == ButtonState.Pressed;  }
         }
 
+        public bool newLeftClick
+        {
+            get { return previousState.LeftButton == ButtonState.Released && currentState.LeftButton == ButtonState.Pressed; }
+        }
+
+        public bool leftRelease
+        {
+            get { return !leftClick && previousState.LeftButton == ButtonState.Pressed;  }
+        }
 
     }
 }

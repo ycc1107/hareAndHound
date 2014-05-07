@@ -16,7 +16,7 @@ namespace hareAhoundGame.ProjectCode
             private const float CENTER_X = 174;
             private const float CENTER_Y = 96;
             private const float FIRST_COLUMN_X = 282;
-            private const float SECOND_COLUMN_X = 362;
+            private const float SECOND_COLUMN_X = 387;
             private const float THIRD_COLUMN_X = 472;
             private const float UP_Y = 0;
             private const float MID_Y = 108;

@@ -46,10 +46,13 @@ namespace hareAhoundGame
         {
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
-            
-            mousePosiiton = new Point(mouseState.X, mouseState.Y);
+            if (charatMovement.newLeftClick)
+            {
 
-          
+            }
+
+
+      
 
             base.Update(gameTime);
         }
@@ -60,13 +63,12 @@ namespace hareAhoundGame
 
             spriteBatch.Begin(SpriteSortMode.FrontToBack, BlendState.NonPremultiplied);
 
-            if (selectStatus)
-            {
+           
                 spriteBatch.Draw(hare, harePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
                 spriteBatch.Draw(hound1, hound1Position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
                 spriteBatch.Draw(hound2, hound2Position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
                 spriteBatch.Draw(hound3, hound3Position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            }
+            
 
 
             spriteBatch.Draw(background, backgroundPosition, null, Color.BlanchedAlmond, 0, Vector2.Zero, 1, SpriteEffects.None, 0);

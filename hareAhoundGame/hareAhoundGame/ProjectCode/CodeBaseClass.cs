@@ -30,8 +30,9 @@ namespace hareAhoundGame.ProjectCode
         protected Vector2 hound3Position;
         protected Vector2 backgroundPosition;
 
-        protected MouseState mouseState;
-        protected Point mousePosiiton;
+        protected MouseState currentState;
+        protected MouseState previousState;
+        protected Point mousePosition;
 
         protected MoveObj charatMovement;
     }
