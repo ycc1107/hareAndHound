@@ -1,3 +1,0 @@
-Content\image\Hare_and_Hounds_board.xnb
-Content\image\hare.xnb
-Content\image\hound.xnb

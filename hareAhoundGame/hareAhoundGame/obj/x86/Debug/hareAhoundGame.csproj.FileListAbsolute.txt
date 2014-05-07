@@ -1,9 +1,0 @@
-c:\users\galaxyan\documents\visual studio 2012\Projects\hareAhoundGame\hareAhoundGame\hareAhoundGame\bin\x86\Debug\hareAhoundGame.exe
-c:\users\galaxyan\documents\visual studio 2012\Projects\hareAhoundGame\hareAhoundGame\hareAhoundGame\bin\x86\Debug\hareAhoundGame.pdb
-c:\users\galaxyan\documents\visual studio 2012\Projects\hareAhoundGame\hareAhoundGame\hareAhoundGame\obj\x86\Debug\hareAhoundGame.csprojResolveAssemblyReference.cache
-c:\users\galaxyan\documents\visual studio 2012\Projects\hareAhoundGame\hareAhoundGame\hareAhoundGame\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
-c:\users\galaxyan\documents\visual studio 2012\Projects\hareAhoundGame\hareAhoundGame\hareAhoundGame\obj\x86\Debug\hareAhoundGame.exe
-c:\users\galaxyan\documents\visual studio 2012\Projects\hareAhoundGame\hareAhoundGame\hareAhoundGame\obj\x86\Debug\hareAhoundGame.pdb
-C:\Users\galaxyan\documents\visual studio 2012\Projects\hareAhoundGame\hareAhoundGame\hareAhoundGame\bin\x86\Debug\Content\image\Hare_and_Hounds_board.xnb
-C:\Users\galaxyan\documents\visual studio 2012\Projects\hareAhoundGame\hareAhoundGame\hareAhoundGame\bin\x86\Debug\Content\image\hare.xnb
-C:\Users\galaxyan\documents\visual studio 2012\Projects\hareAhoundGame\hareAhoundGame\hareAhoundGame\bin\x86\Debug\Content\image\hound.xnb
