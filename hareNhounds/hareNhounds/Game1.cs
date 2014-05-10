@@ -31,11 +31,14 @@ namespace hareNhounds
 
         Point mousePosition;
 
-        Animal hare;
-        Animal houndOne;
-        Animal houndTwo;
-        Animal houndThree;
+        private const int HARE_MOVE = 1;
+        private const int HOUND_MOVE = 0;
 
+        //Animal hare;
+        //Animal houndOne;
+        //Animal houndTwo;
+        //Animal houndThree;
+        Animal hound;
 
         public Game1()
         {
@@ -43,18 +46,9 @@ namespace hareNhounds
             Content.RootDirectory = "Content";
         }
 
-        /// <summary>
-        /// Allows the game to perform any initialization it needs to before starting to run.
-        /// This is where it can query for any required services and load any non-graphic
-        /// related content.  Calling base.Initialize will enumerate through any components
-        /// and initialize them as well.
-        /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
 
-           
-            
             this.IsMouseVisible = true;
             base.Initialize();
         }
@@ -68,10 +62,7 @@ namespace hareNhounds
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            hare = new Animal();
-            houndOne = new Animal();
-            houndTwo = new Animal();
-            houndThree = new Animal();
+            
 
             background = Content.Load<Texture2D>("image/Hare_and_Hounds_board");
             backgroundPosition = BoardPosition.BOARD;
@@ -82,19 +73,19 @@ namespace hareNhounds
             userSelectionHarePositionArea = new Rectangle((int)userSelectionHarePosition.X,(int)userSelectionHarePosition.Y,50,50);
             userSelectionHoundPositionArea = new Rectangle((int)userSelectionHoundPosition.X, (int)userSelectionHoundPosition.Y,50,50);
 
-            hare.setImage = Content.Load<Texture2D>("image/hare");
-            hare.Position = BoardPosition.RIGHT_END;
-            hare.Area = new Rectangle((int)hare.Position.X,(int)hare.Position.Y, 50, 50);
+            BoardPosition.hare.setImage = Content.Load<Texture2D>("image/hare");
+            BoardPosition.hare.Position = BoardPosition.RIGHT_END;
+            BoardPosition.hare.MovePosition = BoardPosition.RIGHT_END;
 
-            houndOne.setImage = Content.Load<Texture2D>("image/hound");
-            houndOne.Position = BoardPosition.FIRST_COLUMN_UP;
-            houndOne.Area = new Rectangle((int)houndOne.Position.X, (int)houndOne.Position.Y, 50, 50);
+            BoardPosition.houndOne.setImage = Content.Load<Texture2D>("image/hound");
+            BoardPosition.houndOne.Position = BoardPosition.FIRST_COLUMN_UP;
+            BoardPosition.houndOne.MovePosition = BoardPosition.FIRST_COLUMN_UP;
 
-            houndTwo.Position = BoardPosition.LEFT_END;
-            houndTwo.Area = new Rectangle((int)houndTwo.Position.X, (int)houndTwo.Position.Y, 50, 50);
+            BoardPosition.houndTwo.Position = BoardPosition.LEFT_END;
+            BoardPosition.houndTwo.MovePosition = BoardPosition.LEFT_END;
 
-            houndThree.Position = BoardPosition.FIRST_COLUMN_DOWN;
-            houndThree.Area = new Rectangle((int)houndThree.Position.X, (int)houndThree.Position.Y, 50, 50);
+            BoardPosition.houndThree.Position = BoardPosition.FIRST_COLUMN_DOWN;
+            BoardPosition.houndThree.MovePosition = BoardPosition.FIRST_COLUMN_DOWN;
 
             mousePosition = new Point(Mouse.GetState().X, Mouse.GetState().Y);
 
@@ -113,40 +104,68 @@ namespace hareNhounds
                 this.Exit();
 
             mousePosition = new Point(Mouse.GetState().X, Mouse.GetState().Y);
-            clickArea = BoardPosition.SelectArea(mousePosition);
+            clickArea = BoardPosition.SelectArea(mousePosition,clickArea);
 
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !hare.Enable && !houndOne.Enable && userSelectionHarePositionArea.Contains(mousePosition))
+            #region Enable Player
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !BoardPosition.hare.Enable && !BoardPosition.houndOne.Enable && userSelectionHarePositionArea.Contains(mousePosition))
             {
-                hare.Enable = true;
+                BoardPosition.hare.Enable = true;
             }
 
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !hare.Enable && !houndOne.Enable && userSelectionHoundPositionArea.Contains(mousePosition))
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !BoardPosition.hare.Enable && !BoardPosition.houndOne.Enable && userSelectionHoundPositionArea.Contains(mousePosition))
             {
-                houndOne.Enable = true;
-                houndTwo.Enable = true;
-                houndThree.Enable = true;
+                BoardPosition.houndOne.Enable = true;
             }
+            #endregion
 
-            
-            if (hare.Enable)
+
+            if (BoardPosition.hare.Enable)
             {
-                hare.isClick(mousePosition);
+                BoardPosition.hare.isClick(mousePosition);
                 //Console.WriteLine("hare select {0}", hare.Selected);
-                if (hare.Selected)
+                if (BoardPosition.hare.Selected)
                 {
-                    if (BoardPosition.IsOccupy(hare, houndOne, houndTwo, houndThree, clickArea))
+                    if (!BoardPosition.IsOccupied(clickArea) && BoardPosition.IsHareLegalMove(clickArea))
                     {
-                        Console.WriteLine("hit area {0}", clickArea);
-                        hare.Position = clickArea;
-                        Console.WriteLine("hare area {0}", hare.Position);
-                        //hare.Area = new Rectangle((int)hare.Position.X, (int)hare.Position.Y, 50, 50);
-                        hare.Selected = false;
+                        BoardPosition.hare.MovePosition = clickArea;
+                        BoardPosition.hare.Selected = false;
+                        BoardPosition.AIMove(HOUND_MOVE);
+                        Console.WriteLine("moving possiton {0}", BoardPosition.hare.MovePosition);
+                        //BoardPosition.AlphaBeta(10, -1, 2, true, hare, houndOne, houndTwo, houndThree, clickArea, false);
                     }
-
                 }
+
             }
 
 
+            if (BoardPosition.houndOne.Enable)
+            {
+                BoardPosition.houndOne.isClick(mousePosition);
+                BoardPosition.houndTwo.isClick(mousePosition);
+                BoardPosition.houndThree.isClick(mousePosition);
+
+                if (BoardPosition.houndOne.Selected)
+                {
+                    hound = BoardPosition.houndOne;
+                    BoardPosition.houndOne.Selected = false;
+                }
+                else if (BoardPosition.houndOne.Selected)
+                {
+                    hound = BoardPosition.houndTwo;
+                    BoardPosition.houndTwo.Selected = false;
+                }
+                else if (BoardPosition.houndOne.Selected)
+                {
+                    hound = BoardPosition.houndThree;
+                    BoardPosition.houndThree.Selected = false;
+                }
+                
+                if (!BoardPosition.IsOccupied(clickArea) && BoardPosition.IsHoundLegalMove(clickArea, hound.Position))
+                {
+                    BoardPosition.houndOne.Position = clickArea;
+                }
+
+            }
 
             base.Update(gameTime);
         }
@@ -159,13 +178,13 @@ namespace hareNhounds
 
             spriteBatch.Draw(background, backgroundPosition, null, Color.BlanchedAlmond, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
-            spriteBatch.Draw(hare.setImage, userSelectionHarePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            spriteBatch.Draw(houndOne.setImage, userSelectionHoundPosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.Draw(BoardPosition.hare.setImage, userSelectionHarePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.Draw(BoardPosition.houndOne.setImage, userSelectionHoundPosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
-            spriteBatch.Draw(hare.setImage, hare.Position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            spriteBatch.Draw(houndOne.setImage, houndOne.Position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            spriteBatch.Draw(houndOne.setImage, houndTwo.Position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            spriteBatch.Draw(houndOne.setImage, houndThree.Position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.Draw(BoardPosition.hare.setImage, BoardPosition.hare.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.Draw(BoardPosition.houndOne.setImage, BoardPosition.houndOne.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.Draw(BoardPosition.houndOne.setImage, BoardPosition.houndTwo.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            spriteBatch.Draw(BoardPosition.houndOne.setImage, BoardPosition.houndThree.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
             spriteBatch.End();
             base.Draw(gameTime);

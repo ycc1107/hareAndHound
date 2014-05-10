@@ -11,8 +11,8 @@ using Microsoft.Xna.Framework.Media;
 
 namespace hareNhounds
 {
-    public abstract class Animal : ClickableObjBase
+    class Hare : Animal
     {
-        //public abstract bool isWin(Animal hare, Animal houndOne, Animal houndTwo, Animal houndThree);
+       
     }
 }
