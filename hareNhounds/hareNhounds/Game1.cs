@@ -15,6 +15,8 @@ namespace hareNhounds
    
     public class Game1 : Microsoft.Xna.Framework.Game
     {
+
+        #region DECLARATION
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
         SpriteFont font;
@@ -55,6 +57,8 @@ namespace hareNhounds
 
         protected ClickableObjBase EasyMode = new ClickableObjBase();
         protected ClickableObjBase ExpertMode = new ClickableObjBase();
+        #endregion
+
 
         public Game1()
         {
@@ -195,6 +199,10 @@ namespace hareNhounds
                     {
                         Win = "YOU WIN THE GAME!"; 
                     }
+                    else if(BoardPosition.IsHoundWin())
+                    {
+                        Win = "YOU LOSE THE GAME";
+                    }
                     else
                     {
                         if (BoardPosition.hare.Selected)
@@ -220,6 +228,10 @@ namespace hareNhounds
                     if (BoardPosition.IsHoundWin())
                     {
                         Win = "YOU WIN THE GAME!";
+                    }
+                    else if (BoardPosition.IsHareWin())
+                    {
+                        Win = "YOU LOSE THE GAME";
                     }
                     else
                     {
@@ -271,7 +283,7 @@ namespace hareNhounds
 
             if (timeNeedForAI != null)
             {
-                spriteBatch.DrawString(font, timeNeedForAI, new Vector2(300, 0), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                spriteBatch.DrawString(font, timeNeedForAI, new Vector2(280, 0), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             }
             
 

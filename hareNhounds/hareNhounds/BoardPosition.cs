@@ -46,7 +46,7 @@ namespace hareNhounds
         protected const float DOWN_Y = UP_Y + 212;
 
 
-        protected const int DEPTH = 30;
+        protected const int DEPTH = 60;
         protected const int DEEPER = DEPTH +30;
         protected const int DEEPEST = DEEPER +30;
 
@@ -65,6 +65,7 @@ namespace hareNhounds
         private List<Animal> houndList;
         private List<string> AIMoveList;
         private int score;
+        private const string BOUNS = "390208";
 
         private int MoveCounter = 0;
         private HashSet<string> state = new HashSet<string>();
@@ -365,11 +366,18 @@ namespace hareNhounds
             return result;
         }
 
-        public List<string> PossibleMove(int who)
+        public List<string> PossibleMove(int who, bool play = true)
         {
             List<string> result = new List<string>();
             List<string> removeList = new List<string>();
             int animalIndex = 1;
+            if (play)
+            {
+                hare.Position = hare.MovePosition;
+                houndOne.Position = houndOne.MovePosition;
+                houndTwo.Position = houndTwo.MovePosition;
+                houndThree.Position = houndThree.MovePosition;
+            }
 
             if (who == HARE_MOVE)
             {
@@ -712,7 +720,7 @@ namespace hareNhounds
 
         private int AlphaBetaMin(int depth, int alpha, int beta, int who, string mode)
         {
-            List<string> listMove = PossibleMove(who);
+            List<string> listMove = PossibleMove(who,false);
 
             if (depth == 0 || listMove.Count == 0)
                 return Eveluation(who,mode);
@@ -725,7 +733,12 @@ namespace hareNhounds
                 who = 1 - who;
                 MoveAnimal(move);
 
+                
                 score = AlphaBetaMax(depth - 1, alpha, beta, who, mode);
+                //Console.WriteLine(move.Substring(0, 5).CompareTo(BOUNS));
+                if (move.Substring(0, 5).CompareTo(BOUNS) == 1)
+                    score *= 2;
+                
                 if (score <= alpha)
                     return alpha;
                 if (score < beta)
@@ -740,7 +753,7 @@ namespace hareNhounds
 
         private int AlphaBetaMax(int depth, int alpha, int beta, int who,string mode)
         {
-            List<string> listMove = PossibleMove(who);
+            List<string> listMove = PossibleMove(who, false);
             string bestMove = "";
 
             if (depth == 0 || listMove.Count == 0)
