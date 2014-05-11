@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -18,11 +19,11 @@ namespace hareNhounds
         #region Constant
         private const int HOUND_NUMBER = 3;
 
-        private const int WIN = 10;
-        private const int BAND_8 = 4;
-        private const int BAND_6 = 3;
-        private const int BAND_4 = 2;
-        private const int BAND_2 = 2;
+        private const int WIN = 100;
+        private const int BAND_8 = 40;
+        private const int BAND_6 = 30;
+        private const int BAND_4 = 20;
+        private const int BAND_2 = 20;
         private const int BAND_1 = 0;
 
         private const int HARE_MOVE = 1;
@@ -46,7 +47,7 @@ namespace hareNhounds
         protected const float DOWN_Y = UP_Y + 212;
 
 
-        protected const int DEPTH = 60;
+        protected const int DEPTH = 100;
         protected const int DEEPER = DEPTH +30;
         protected const int DEEPEST = DEEPER +30;
 
@@ -69,6 +70,10 @@ namespace hareNhounds
 
         private int MoveCounter = 0;
         private HashSet<string> state = new HashSet<string>();
+
+        private List<string> tempFile = new List<string>();
+        int moveNumber = 1;
+
         #endregion 
             
         #region Protected 
@@ -452,7 +457,7 @@ namespace hareNhounds
                     else if (hare.Position == RIGHT_END)
                     {
                         result.Add(EncodeMove(THIRD_COLUMN_MID, animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_UP, animalIndex));
                         result.Add(EncodeMove(THIRD_COLUMN_DOWN, animalIndex));
                     
                     }
@@ -557,14 +562,28 @@ namespace hareNhounds
             houndThree.Position = houndThree.MovePosition;
 
             if (MoveCounter > 5)
-            {
                 depth = DEEPER;
-            }
 
             state = new HashSet<string>();
+            tempFile = new List<string>();
             AlphaBetaMax(depth, alpha, beta, who,mode);
-
             
+            using (System.IO.StreamWriter file = System.IO.File.AppendText(@"C:\Users\galaxyan\Documents\GitHub\hareAndHound\WriteLines2.txt"))
+            {
+                if (moveNumber > 4)
+                {
+                    foreach (string line in tempFile)
+                    {
+                        file.WriteLine(line);
+                        //Console.WriteLine(" the line {0}", line);
+
+                    }
+                }
+                file.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~{0}~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~",moveNumber);
+                moveNumber +=1;
+            }
+            
+
             string newAIMove = AIMoveList.Last() ;
             //counter += 1;
 
@@ -591,9 +610,10 @@ namespace hareNhounds
                 houndThree.MovePosition = newPositon;
             }
             
+            
         }
 
-        private int Eveluation(int who,string mode)
+        private int Evaluation(int who,string mode)
         {
             int result = 0;
             if (mode == EASY_MODE)
@@ -621,21 +641,24 @@ namespace hareNhounds
         {
             int result = 0;
             float lastHoundPosition = Math.Min(houndOne.Position.X, Math.Min(houndThree.Position.X, houndTwo.Position.X));
+            double dist = (Math.Sqrt(Math.Pow((houndOne.Position.X - hare.Position.X), 2) + Math.Pow((houndOne.Position.Y - hare.Position.Y), 2)) +
+                            Math.Sqrt(Math.Pow((houndTwo.Position.X - hare.Position.X), 2) + Math.Pow((houndTwo.Position.Y - hare.Position.Y), 2)) +
+                            Math.Sqrt(Math.Pow((houndThree.Position.X - hare.Position.X), 2) + Math.Pow((houndThree.Position.Y - hare.Position.Y), 2))) / 3;
             if (hare.Position.X <= lastHoundPosition)
             {
                 result = WIN;
             }
             else if (hare.Position.X <= FIRST_COLUMN_X)
             {
-                result = BAND_8;
+                result = Convert.ToInt32(Convert.ToDouble(BAND_8) * 50/ dist);
             }
             else if (hare.Position.X <= SECOND_COLUMN_X)
             {
-                result = BAND_6;
+                result = Convert.ToInt32(Convert.ToDouble(BAND_6) * 50 / dist); 
             }
             else if (hare.Position.X <= THIRD_COLUMN_X)
             {
-                result = BAND_4;
+                result = Convert.ToInt32(Convert.ToDouble(BAND_4) * 50 / dist);
             }
             return result;
         }
@@ -667,6 +690,10 @@ namespace hareNhounds
             else if (dist <= 250)
             {
                 result = BAND_2;
+            }
+            if (houndOne.Position.X - hare.Position.X<0 || houndTwo.Position.X - hare.Position.X <0 || houndThree.Position.X - hare.Position.X <0)
+            {
+                result = 0;
             }
 
             return result;
@@ -723,7 +750,13 @@ namespace hareNhounds
             List<string> listMove = PossibleMove(who,false);
 
             if (depth == 0 || listMove.Count == 0)
-                return Eveluation(who,mode);
+            {
+                //Console.WriteLine("depth {0}", depth);
+                string temp = Convert.ToString(depth) + " " + Convert.ToString(Evaluation(who, mode)) + "  MIN";
+                tempFile.Add(temp);
+                return Evaluation(who, mode);
+            }
+            
 
             foreach (string move in listMove)
             {
@@ -732,13 +765,7 @@ namespace hareNhounds
 
                 who = 1 - who;
                 MoveAnimal(move);
-
-                
                 score = AlphaBetaMax(depth - 1, alpha, beta, who, mode);
-                //Console.WriteLine(move.Substring(0, 5).CompareTo(BOUNS));
-                if (move.Substring(0, 5).CompareTo(BOUNS) == 1)
-                    score *= 2;
-                
                 if (score <= alpha)
                     return alpha;
                 if (score < beta)
@@ -757,7 +784,13 @@ namespace hareNhounds
             string bestMove = "";
 
             if (depth == 0 || listMove.Count == 0)
-                return Eveluation(who, mode);
+            {
+                //Console.WriteLine("depth {0}", depth);
+                string temp = Convert.ToString(depth)+" "+Convert.ToString(Evaluation(who,mode))+"  MAX";
+                tempFile.Add(temp);
+                return Evaluation(who, mode);
+            }
+            
 
             foreach (string move in listMove)
             {
@@ -766,7 +799,7 @@ namespace hareNhounds
                
                 who = 1 - who;
                 MoveAnimal(move);
-
+                //Console.WriteLine("the depht numbner {0}",depth);
                 score = AlphaBetaMin(depth - 1, alpha, beta, who, mode);
                 if (score >= beta)
                     return beta;
