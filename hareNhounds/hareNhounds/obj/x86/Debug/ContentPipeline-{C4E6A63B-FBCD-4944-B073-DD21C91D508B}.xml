@@ -28,6 +28,15 @@
       <Output>c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\hound.xnb</Output>
       <Time>2014-04-20T16:09:32.9427116-04:00</Time>
     </Item>
+    <Item>
+      <Source>image\font.spritefont</Source>
+      <Name>image\font</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\font.xnb</Output>
+      <Time>2014-05-10T18:00:58.9551762-04:00</Time>
+    </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
       <ContentProjectGUID>{C4E6A63B-FBCD-4944-B073-DD21C91D508B}</ContentProjectGUID>
@@ -35,10 +44,10 @@
       <TargetProfile>Reach</TargetProfile>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhoundsContent\</RootDirectory>
-      <LoggerRootDirectory>c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\</LoggerRootDirectory>
-      <IntermediateDirectory>c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhoundsContent\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>

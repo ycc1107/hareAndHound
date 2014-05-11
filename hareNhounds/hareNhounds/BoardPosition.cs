@@ -15,21 +15,16 @@ namespace hareNhounds
     public class BoardPosition
     {
 
+        #region Constant
         private const int HOUND_NUMBER = 3;
-        private List<Animal> houndList;
 
-        #region TempAdd
+        private const int WIN = 10;
+        private const int BAND_8 = 4;
+        private const int BAND_6 = 3;
+        private const int BAND_4 = 2;
+        private const int BAND_2 = 2;
+        private const int BAND_1 = 0;
 
-        public Animal hare;
-        public Animal houndOne;
-        public Animal houndTwo;
-        public Animal houndThree;
-
-        private List<string> AIMoveList;
-        private int score;
-
-        private const int HARE_WIN = 1;
-        private const int HOUND_WIN = -1;
         private const int HARE_MOVE = 1;
         private const int HOUND_MOVE = 0;
 
@@ -39,12 +34,7 @@ namespace hareNhounds
         private const int ANIMAL_INDEX_HOUND_TWO = 3;
         private const int ANIMAL_INDEX_HOUND_THREE = 4;
 
-        private string bestMove;
-        #endregion 
-
-
-            
-        #region Private loactions
+        private const bool EVELUATION = false;
 
         protected const float CENTER_X = 174;
         protected const float CENTER_Y = 100;
@@ -52,8 +42,35 @@ namespace hareNhounds
         protected const float SECOND_COLUMN_X = 390;
         protected const float THIRD_COLUMN_X = 496;
         protected const float UP_Y = 100;
-        protected const float MID_Y = UP_Y+108;
-        protected const float DOWN_Y = UP_Y+212;
+        protected const float MID_Y = UP_Y + 108;
+        protected const float DOWN_Y = UP_Y + 212;
+
+
+        protected const int DEPTH = 30;
+        protected const int DEEPER = DEPTH +30;
+        protected const int DEEPEST = DEEPER +30;
+
+        protected const string EASY_MODE = "EASY";
+        protected const string EXPERT_MODE = "EXPERT";
+
+        #endregion
+
+        #region TempAdd
+
+        public Animal hare;
+        public Animal houndOne;
+        public Animal houndTwo;
+        public Animal houndThree;
+
+        private List<Animal> houndList;
+        private List<string> AIMoveList;
+        private int score;
+
+        private int MoveCounter = 0;
+        private HashSet<string> state = new HashSet<string>();
+        #endregion 
+            
+        #region Protected 
 
         protected Vector2 board;
         protected Vector2 left_end;
@@ -108,17 +125,17 @@ namespace hareNhounds
            third_column_down = new Vector2(THIRD_COLUMN_X, DOWN_Y); // third column down
            right_end = new Vector2(CENTER_X + 432, MID_Y); // right end
 
-           left_end_area = new Rectangle((int)CENTER_X, (int)CENTER_Y + 12,50,50);
-           first_column_up_area = new Rectangle((int)FIRST_COLUMN_X, (int)UP_Y + 12, 50, 50);
-           first_column_mid_area = new Rectangle((int)FIRST_COLUMN_X, (int)MID_Y + 12, 50, 50);
-           first_column_down_area = new Rectangle((int)FIRST_COLUMN_X, (int)DOWN_Y + 12, 50, 50);
-           second_column_up_area = new Rectangle((int)SECOND_COLUMN_X, (int)UP_Y + 12, 50, 50);
-           second_column_mid_area = new Rectangle((int)SECOND_COLUMN_X, (int)MID_Y + 12, 50, 50);
-           second_column_down_area = new Rectangle((int)SECOND_COLUMN_X, (int)DOWN_Y + 12, 50, 50);
-           third_column_up_area = new Rectangle((int)THIRD_COLUMN_X, (int)UP_Y + 12, 50, 50);
-           third_column_mid_area = new Rectangle((int)THIRD_COLUMN_X, (int)MID_Y + 12, 50, 50);
-           third_column_down_area = new Rectangle((int)THIRD_COLUMN_X, (int)DOWN_Y + 12, 50, 50);
-           right_end_area = new Rectangle((int)CENTER_X + 432, (int)CENTER_Y + 11, 50, 50);
+           left_end_area = new Rectangle((int)CENTER_X, (int)MID_Y , 50, 50);
+           first_column_up_area = new Rectangle((int)FIRST_COLUMN_X, (int)UP_Y , 50, 50);
+           first_column_mid_area = new Rectangle((int)FIRST_COLUMN_X, (int)MID_Y , 50, 50);
+           first_column_down_area = new Rectangle((int)FIRST_COLUMN_X, (int)DOWN_Y , 50, 50);
+           second_column_up_area = new Rectangle((int)SECOND_COLUMN_X, (int)UP_Y , 50, 50);
+           second_column_mid_area = new Rectangle((int)SECOND_COLUMN_X, (int)MID_Y , 50, 50);
+           second_column_down_area = new Rectangle((int)SECOND_COLUMN_X, (int)DOWN_Y , 50, 50);
+           third_column_up_area = new Rectangle((int)THIRD_COLUMN_X, (int)UP_Y , 50, 50);
+           third_column_mid_area = new Rectangle((int)THIRD_COLUMN_X, (int)MID_Y , 50, 50);
+           third_column_down_area = new Rectangle((int)THIRD_COLUMN_X, (int)DOWN_Y , 50, 50);
+           right_end_area = new Rectangle((int)CENTER_X + 432, (int)MID_Y , 50, 50);
 
            hare_select = new Vector2(FIRST_COLUMN_X, DOWN_Y + 80);
            hound_select = new Vector2(THIRD_COLUMN_X, DOWN_Y + 80);
@@ -155,6 +172,8 @@ namespace hareNhounds
 
         }
 
+        #region Get position in board
+
         public Vector2 BOARD { get { return board; } }
         public Vector2 LEFT_END { get { return left_end; } }
         public Vector2 FIRST_COLUMN_UP { get { return first_column_up; } }
@@ -186,88 +205,117 @@ namespace hareNhounds
         public Rectangle HARE_SELECT_AREA { get { return hare_select_area; } }
         public Rectangle HOUND_SELECT_AREA { get { return hound_select_area; } }
 
+        #endregion 
+
         public Vector2 SelectArea(Point mousePosition,Vector2 lastClickArea)
         {
             Vector2 result = lastClickArea;
-            if (this.LEFT_END_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+            if (!hare.Area.Contains(mousePosition) && !houndOne.Area.Contains(mousePosition) && !houndTwo.Area.Contains(mousePosition) && !houndThree.Area.Contains(mousePosition))
             {
-                result = LEFT_END;
-            }
+                if (this.LEFT_END_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = LEFT_END;
+                }
 
-            if (this.FIRST_COLUMN_UP_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = FIRST_COLUMN_UP;
-            }
+                if (this.FIRST_COLUMN_UP_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = FIRST_COLUMN_UP;
+                }
 
-            if (this.FIRST_COLUMN_MID_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = FIRST_COLUMN_MID;
-            }
+                if (this.FIRST_COLUMN_MID_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = FIRST_COLUMN_MID;
+                }
 
-            if (this.FIRST_COLUMN_DOWN_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = FIRST_COLUMN_DOWN;
-            }
+                if (this.FIRST_COLUMN_DOWN_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = FIRST_COLUMN_DOWN;
+                }
 
-            if (this.SECOND_COLUMN_UP_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = SECOND_COLUMN_UP;
-            }
+                if (this.SECOND_COLUMN_UP_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = SECOND_COLUMN_UP;
+                }
 
-            if (this.SECOND_COLUMN_MID_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = SECOND_COLUMN_MID;
-            }
+                if (this.SECOND_COLUMN_MID_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = SECOND_COLUMN_MID;
+                }
 
-            if (this.SECOND_COLUMN_DOWN_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = SECOND_COLUMN_DOWN;
-            }
+                if (this.SECOND_COLUMN_DOWN_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = SECOND_COLUMN_DOWN;
+                }
 
-            if (this.THIRD_COLUMN_UP_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = THIRD_COLUMN_UP;
-            }
+                if (this.THIRD_COLUMN_UP_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = THIRD_COLUMN_UP;
+                }
 
-            if (this.THIRD_COLUMN_MID_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = THIRD_COLUMN_MID;
-            }
+                if (this.THIRD_COLUMN_MID_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = THIRD_COLUMN_MID;
+                }
 
-            if (this.THIRD_COLUMN_DOWN_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = THIRD_COLUMN_DOWN;
-            }
+                if (this.THIRD_COLUMN_DOWN_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = THIRD_COLUMN_DOWN;
+                }
 
-            if (this.RIGHT_END_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
-            {
-                result = RIGHT_END;
+                if (this.RIGHT_END_Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+                {
+                    result = RIGHT_END;
+                }
             }
-
             return result;
         }
 
-        public bool IsOccupied( Vector2 clickArea)
+        public bool IsOccupied( Vector2 clickArea, bool play = true )
         {
             bool result = false;
-            if (hare.Position.X == clickArea.X && hare.Position.Y == clickArea.Y)
+            if (play)
             {
-                result = true;
-            }
+                if (hare.MovePosition.X == clickArea.X && hare.MovePosition.Y == clickArea.Y)
+                {
+                    result = true;
+                }
 
-            if (houndOne.Position.X == clickArea.X && houndOne.Position.Y == clickArea.Y)
-            {
-                result = true;
-            }
+                if (houndOne.MovePosition.X == clickArea.X && houndOne.MovePosition.Y == clickArea.Y)
+                {
+                    result = true;
+                }
 
-            if (houndTwo.Position.X == clickArea.X && houndTwo.Position.Y == clickArea.Y)
-            {
-                result = true;
-            }
+                if (houndTwo.MovePosition.X == clickArea.X && houndTwo.MovePosition.Y == clickArea.Y)
+                {
+                    result = true;
+                }
 
-            if (houndThree.Position.X == clickArea.X && houndThree.Position.Y == clickArea.Y)
+                if (houndThree.MovePosition.X == clickArea.X && houndThree.MovePosition.Y == clickArea.Y)
+                {
+                    result = true;
+                }
+            }
+            else
             {
-                result = true;
+                if (hare.Position.X == clickArea.X && hare.Position.Y == clickArea.Y)
+                {
+                    result = true;
+                }
+
+                if (houndOne.Position.X == clickArea.X && houndOne.Position.Y == clickArea.Y)
+                {
+                    result = true;
+                }
+
+                if (houndTwo.Position.X == clickArea.X && houndTwo.Position.Y == clickArea.Y)
+                {
+                    result = true;
+                }
+
+                if (houndThree.Position.X == clickArea.X && houndThree.Position.Y == clickArea.Y)
+                {
+                    result = true;
+                }
             }
 
             return result;
@@ -276,9 +324,9 @@ namespace hareNhounds
         public bool IsHareLegalMove(Vector2 clickArea)
         {
             bool result = false;
-            if (Math.Abs(hare.Position.X - clickArea.X) < 120 && Math.Abs(hare.Position.Y - clickArea.Y) < 120)
+            if (Math.Abs(hare.MovePosition.X - clickArea.X) < 120 && Math.Abs(hare.MovePosition.Y - clickArea.Y) < 120)
             {
-                if (!IsNonDiagonal(hare.Position, clickArea))
+                if (!IsNonDiagonal(hare.MovePosition, clickArea))
                 {
                     result = true;
 
@@ -320,86 +368,86 @@ namespace hareNhounds
         public List<string> PossibleMove(int who)
         {
             List<string> result = new List<string>();
+            List<string> removeList = new List<string>();
             int animalIndex = 1;
 
             if (who == HARE_MOVE)
             {
 
                 #region Set Hare Possible
-      
+
                     if (hare.Position == FIRST_COLUMN_UP)
                     {
-                        result.Add(EncodeMove(LEFT_END,animalIndex));
-                        result.Add(EncodeMove(FIRST_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_UP,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_MID,animalIndex));
+                        result.Add(EncodeMove(LEFT_END, animalIndex));
+                        result.Add(EncodeMove(FIRST_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_UP, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_MID, animalIndex));
                     }
                     else if (hare.Position == FIRST_COLUMN_MID)
                     {
-                        result.Add(EncodeMove(LEFT_END,animalIndex));
-                        result.Add(EncodeMove(FIRST_COLUMN_UP,animalIndex));
-                        result.Add(EncodeMove(FIRST_COLUMN_DOWN,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_MID,animalIndex));
+                        result.Add(EncodeMove(LEFT_END, animalIndex));
+                        result.Add(EncodeMove(FIRST_COLUMN_UP, animalIndex));
+                        result.Add(EncodeMove(FIRST_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_MID, animalIndex));
                     }
                     else if (hare.Position == FIRST_COLUMN_DOWN)
                     {
-                        result.Add(EncodeMove(LEFT_END,animalIndex));
-                        result.Add(EncodeMove(FIRST_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_DOWN,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_MID,animalIndex));
+                        result.Add(EncodeMove(LEFT_END, animalIndex));
+                        result.Add(EncodeMove(FIRST_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_MID, animalIndex));
                     }
                     else if (hare.Position == SECOND_COLUMN_UP)
                     {
-                        result.Add(EncodeMove(FIRST_COLUMN_UP,animalIndex));
+                        result.Add(EncodeMove(FIRST_COLUMN_UP, animalIndex));
                         result.Add(EncodeMove(SECOND_COLUMN_MID, animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_UP,animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_UP, animalIndex));
                     }
                     else if (hare.Position == SECOND_COLUMN_MID)
                     {
-                        result.Add(EncodeMove(FIRST_COLUMN_UP,animalIndex));
-                        result.Add(EncodeMove(FIRST_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(FIRST_COLUMN_DOWN,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_DOWN,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_UP,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_DOWN,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_UP,animalIndex));
+                        result.Add(EncodeMove(FIRST_COLUMN_UP, animalIndex));
+                        result.Add(EncodeMove(FIRST_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(FIRST_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_UP, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_UP, animalIndex));
                     }
                     else if (hare.Position == SECOND_COLUMN_DOWN)
                     {
-                        result.Add(EncodeMove(FIRST_COLUMN_DOWN,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_DOWN,animalIndex));
+                        result.Add(EncodeMove(FIRST_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_DOWN, animalIndex));
                     }
                     else if (hare.Position == THIRD_COLUMN_UP)
                     {
-                        result.Add(EncodeMove(SECOND_COLUMN_UP,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(RIGHT_END,animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_UP, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(RIGHT_END, animalIndex));
                     }
                     else if (hare.Position == THIRD_COLUMN_MID)
                     {
-                        result.Add(EncodeMove(SECOND_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_DOWN,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_UP,animalIndex));
-                        result.Add(EncodeMove(RIGHT_END,animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_UP, animalIndex));
+                        result.Add(EncodeMove(RIGHT_END, animalIndex));
                     }
                     else if (hare.Position == THIRD_COLUMN_DOWN)
                     {
-                        result.Add(EncodeMove(SECOND_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(SECOND_COLUMN_DOWN,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(RIGHT_END,animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(SECOND_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(RIGHT_END, animalIndex));
                     }
                     else if (hare.Position == RIGHT_END)
                     {
-                        result.Add(EncodeMove(THIRD_COLUMN_MID,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_DOWN,animalIndex));
-                        result.Add(EncodeMove(THIRD_COLUMN_DOWN,animalIndex));
-
+                        result.Add(EncodeMove(THIRD_COLUMN_MID, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_DOWN, animalIndex));
+                        result.Add(EncodeMove(THIRD_COLUMN_DOWN, animalIndex));
+                    
                     }
-
                     #endregion
                 
             }
@@ -457,18 +505,15 @@ namespace hareNhounds
                     {
                         
                         result.Add(EncodeMove(THIRD_COLUMN_MID, animalIndex));
-                        result.Add(EncodeMove(RIGHT_END, animalIndex));
                     }
                     else if (hound.Position == THIRD_COLUMN_MID)
                     {
                        
                         result.Add(EncodeMove(THIRD_COLUMN_DOWN, animalIndex));
-                        result.Add(EncodeMove(RIGHT_END, animalIndex));
                     }
                     else if (hound.Position == THIRD_COLUMN_DOWN)
                     {
                         result.Add(EncodeMove(THIRD_COLUMN_MID, animalIndex));
-                        result.Add(EncodeMove(RIGHT_END, animalIndex));
                     }
                 }
 
@@ -478,20 +523,23 @@ namespace hareNhounds
 
             for(int i = 0 ; i< result.Count;i++)
             {
-               
-                if (IsOccupied(DecodeMove(result[i])))
+
+                if (IsOccupied(DecodeMove(result[i]), EVELUATION))
                 {
-                    result.Remove(result[i]);
+                    removeList.Add(result[i]);
                 }
+            }
+            foreach (string removeItem in removeList)
+            {
+                result.Remove(removeItem);
             }
 
             return result;
         }
 
-        public void AIMove(int who)
+        public void AIMove(int who,string mode)
         {
-            //this.AlphaBeta
-            int depth = 3;
+            int depth = DEPTH;
             int alpha = int.MinValue;
             int beta = int.MaxValue;
 
@@ -500,14 +548,24 @@ namespace hareNhounds
             houndTwo.Position = houndTwo.MovePosition;
             houndThree.Position = houndThree.MovePosition;
 
-            AlphaBetaMax(depth, alpha, beta, who);
+            if (MoveCounter > 5)
+            {
+                depth = DEEPER;
+            }
 
-            string bestMove = AIMoveList[0];
-            int animalIndex =Convert.ToInt32(bestMove.Substring(6));
-            float x = (float) Convert.ToInt32(bestMove.Substring(0,3));
-            float y = (float) Convert.ToInt32(bestMove.Substring(3,3));
+            state = new HashSet<string>();
+            AlphaBetaMax(depth, alpha, beta, who,mode);
+
+            
+            string newAIMove = AIMoveList.Last() ;
+            //counter += 1;
+
+            int animalIndex = Convert.ToInt32(newAIMove.Substring(6));
+            float x = (float)Convert.ToInt32(newAIMove.Substring(0, 3));
+            float y = (float)Convert.ToInt32(newAIMove.Substring(3, 3));
             Vector2 newPositon = new Vector2(x,y);
 
+            
             if (animalIndex == ANIMAL_INDEX_HARE)
             {
                 hare.MovePosition = newPositon;
@@ -524,34 +582,108 @@ namespace hareNhounds
             {
                 houndThree.MovePosition = newPositon;
             }
-            Console.WriteLine("the new move {0} , who is moving {1}", newPositon,animalIndex);
-            Console.WriteLine("##############################################");
-
             
         }
 
-        private int Eveluation(int who)
+        private int Eveluation(int who,string mode)
         {
             int result = 0;
-            if (who == HARE_MOVE)
+            if (mode == EASY_MODE)
             {
-                float lastHoundPosition = Math.Min(houndOne.Position.X, Math.Min(houndThree.Position.X, houndTwo.Position.X));
-                if (hare.Position.X >= lastHoundPosition)
+                if (who == HARE_MOVE)
                 {
-                    result = HARE_WIN;
+                    result = HareAdvantage() - HoundAdvantage();
+                }
+                else
+                {
+
+                    result = HoundAdvantage() - HareAdvantage();
                 }
             }
-            else
+            else if (mode == EXPERT_MODE)
             {
-                if ( PossibleMove(HARE_MOVE).Count == 0)
-                {
-                    result = HOUND_WIN;
-                }
+                return 0;
             }
 
             return  result;
             
         }
+
+        private int HareAdvantage()
+        {
+            int result = 0;
+            float lastHoundPosition = Math.Min(houndOne.Position.X, Math.Min(houndThree.Position.X, houndTwo.Position.X));
+            if (hare.Position.X <= lastHoundPosition)
+            {
+                result = WIN;
+            }
+            else if (hare.Position.X <= FIRST_COLUMN_X)
+            {
+                result = BAND_8;
+            }
+            else if (hare.Position.X <= SECOND_COLUMN_X)
+            {
+                result = BAND_6;
+            }
+            else if (hare.Position.X <= THIRD_COLUMN_X)
+            {
+                result = BAND_4;
+            }
+            return result;
+        }
+
+        private int HoundAdvantage()
+        {
+            int result = 0;
+            double dist = (Math.Sqrt(Math.Pow((houndOne.Position.X - hare.Position.X), 2) + Math.Pow((houndOne.Position.Y - hare.Position.Y), 2)) +
+                            Math.Sqrt(Math.Pow((houndTwo.Position.X - hare.Position.X), 2) + Math.Pow((houndTwo.Position.Y - hare.Position.Y), 2)) +
+                            Math.Sqrt(Math.Pow((houndThree.Position.X - hare.Position.X), 2) + Math.Pow((houndThree.Position.Y - hare.Position.Y), 2))) / 3;
+            //Console.WriteLine(" the distance {0}", dist);
+
+            if (PossibleMove(HARE_MOVE).Count == 0)
+            {
+                result = WIN;
+            }
+            else if (dist <= 100)
+            {
+                result = BAND_8;
+            }
+            else if (dist <= 150)
+            {
+                result = BAND_6;
+            }
+            else if (dist <= 200)
+            {
+                result = BAND_4;
+            }
+            else if (dist <= 250)
+            {
+                result = BAND_2;
+            }
+
+            return result;
+        }
+
+        public bool IsHareWin()
+        {
+            bool result = false;
+
+            float lastHoundPosition = Math.Min(houndOne.MovePosition.X, Math.Min(houndThree.MovePosition.X, houndTwo.MovePosition.X));
+            if (hare.MovePosition.X <= lastHoundPosition)
+                result = true;
+
+            return result;
+        }
+
+        public bool IsHoundWin()
+        {
+            bool result = false;
+            if (PossibleMove(HARE_MOVE).Count == 0)
+                result = true;
+
+            return result;
+        }
+
         private void MoveAnimal(string move)
         {
             int animalIndex = Convert.ToInt32(move.Substring(6));
@@ -578,54 +710,59 @@ namespace hareNhounds
 
         }
 
-        private int AlphaBetaMin(int depth, int alpha, int beta, int who)
+        private int AlphaBetaMin(int depth, int alpha, int beta, int who, string mode)
         {
             List<string> listMove = PossibleMove(who);
 
             if (depth == 0 || listMove.Count == 0)
-                return Eveluation(who);
+                return Eveluation(who,mode);
 
             foreach (string move in listMove)
             {
+                //if (StageImage())
+                    //continue;
+
                 who = 1 - who;
                 MoveAnimal(move);
 
-                score = AlphaBetaMax(depth - 1, alpha, beta, who);
-                if(  score <= alpha )
-                     return alpha;
+                score = AlphaBetaMax(depth - 1, alpha, beta, who, mode);
+                if (score <= alpha)
+                    return alpha;
                 if (score < beta)
                 {
                     beta = score;
-                    bestMove = move;
+                 
                 }
-                
-           }
-            AIMoveList.Add(bestMove);
-            return beta;
-        }
 
-        private int AlphaBetaMax(int depth, int alpha, int beta, int who)
+            }
+            return beta;
+        } 
+
+        private int AlphaBetaMax(int depth, int alpha, int beta, int who,string mode)
         {
-             List<string> listMove = PossibleMove(who);
+            List<string> listMove = PossibleMove(who);
+            string bestMove = "";
 
             if (depth == 0 || listMove.Count == 0)
-                return Eveluation(who);
+                return Eveluation(who, mode);
 
             foreach (string move in listMove)
             {
+                //if (StageImage())
+                   // continue;
+               
                 who = 1 - who;
                 MoveAnimal(move);
 
-                score = AlphaBetaMin(depth - 1, alpha, beta,who);
+                score = AlphaBetaMin(depth - 1, alpha, beta, who, mode);
                 if (score >= beta)
                     return beta;
                 if (score > alpha)
                 {
                     alpha = score;
                     bestMove = move;
-                    
                 }
-              
+
             }
             AIMoveList.Add(bestMove);
             return alpha;
@@ -667,7 +804,21 @@ namespace hareNhounds
 
             return result;
         }
-     
+
+        private bool StageImage()
+        {
+            bool result = true;
+            string code = EncodeMove(hare.Position, ANIMAL_INDEX_HARE) + EncodeMove(houndTwo.Position, ANIMAL_INDEX_HOUND_ONE) + EncodeMove(houndTwo.Position, ANIMAL_INDEX_HOUND_TWO) + EncodeMove(houndThree.Position, ANIMAL_INDEX_HOUND_THREE);
+
+            if (!state.Contains(code))
+            {
+                state.Add(code);
+                result = false;
+            }
+
+            return result; 
+
+        }
 
     }
 }

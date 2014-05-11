@@ -27,7 +27,7 @@ namespace hareNhounds
 
         public virtual Rectangle Area 
         {
-            get { return new Rectangle((int)this.Position.X, (int)this.Position.Y, 50, 50); } 
+            get { return new Rectangle((int)this.MovePosition.X, (int)this.MovePosition.Y, 50, 50); } 
         }
 
         public virtual bool Enable

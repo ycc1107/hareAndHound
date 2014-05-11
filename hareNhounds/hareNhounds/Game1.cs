@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Audio;
@@ -16,6 +17,15 @@ namespace hareNhounds
     {
         GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
+        SpriteFont font;
+        
+        Stopwatch stopwatch = new Stopwatch();
+        protected string timeNeedForAI;
+        protected string occuped;
+        protected string Win = "";
+        protected const string EASY_MODE = "EASY MODE";
+        protected const string EXPERT_MODE = "EXPERT MODE";
+        protected string mode = "";
 
         protected Texture2D background;
 
@@ -31,13 +41,15 @@ namespace hareNhounds
 
         Point mousePosition;
 
+        bool hareMoved = false;
+        bool houndMoved = false;
+
         private const int HARE_MOVE = 1;
         private const int HOUND_MOVE = 0;
 
-        //Animal hare;
-        //Animal houndOne;
-        //Animal houndTwo;
-        //Animal houndThree;
+        protected ClickableObjBase EasyMode = new ClickableObjBase();
+        protected ClickableObjBase ExpertMode = new ClickableObjBase();
+
         Animal hound;
 
         public Game1()
@@ -53,16 +65,11 @@ namespace hareNhounds
             base.Initialize();
         }
 
-        /// <summary>
-        /// LoadContent will be called once per game and is the place to load
-        /// all of your content.
-        /// </summary>
         protected override void LoadContent()
         {
-            // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
-            
+            font = Content.Load<SpriteFont>("image/font");
 
             background = Content.Load<Texture2D>("image/Hare_and_Hounds_board");
             backgroundPosition = BoardPosition.BOARD;
@@ -89,6 +96,10 @@ namespace hareNhounds
 
             mousePosition = new Point(Mouse.GetState().X, Mouse.GetState().Y);
 
+            ExpertMode.Position = new Vector2(50, 50);
+            EasyMode.Position = new Vector2(50, 150);
+            ExpertMode.MovePosition = ExpertMode.Position;
+            EasyMode.MovePosition = EasyMode.Position;
         }
 
 
@@ -106,66 +117,142 @@ namespace hareNhounds
             mousePosition = new Point(Mouse.GetState().X, Mouse.GetState().Y);
             clickArea = BoardPosition.SelectArea(mousePosition,clickArea);
 
-            #region Enable Player
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !BoardPosition.hare.Enable && !BoardPosition.houndOne.Enable && userSelectionHarePositionArea.Contains(mousePosition))
-            {
-                BoardPosition.hare.Enable = true;
-            }
+            //Console.WriteLine("the click area {0}", clickArea);
 
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !BoardPosition.hare.Enable && !BoardPosition.houndOne.Enable && userSelectionHoundPositionArea.Contains(mousePosition))
+            #region mode select
+            //Console.WriteLine("the EasyMode area {0}", EasyMode.Area);
+            //Console.WriteLine("the mode enable {0}", EasyMode.Selected);
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !EasyMode.Enable && !ExpertMode.Enable)
             {
-                BoardPosition.houndOne.Enable = true;
+                EasyMode.isClick(mousePosition);
+                ExpertMode.isClick(mousePosition);
+                if (EasyMode.Selected)
+                {
+                    mode = EASY_MODE;
+                }
+                else if (ExpertMode.Selected)
+                {
+                    mode = EXPERT_MODE;
+                }
             }
             #endregion
 
-
-            if (BoardPosition.hare.Enable)
+            #region Enable Player
+            if (EasyMode.Selected || ExpertMode.Selected)
             {
-                BoardPosition.hare.isClick(mousePosition);
-                //Console.WriteLine("hare select {0}", hare.Selected);
-                if (BoardPosition.hare.Selected)
+                if (Mouse.GetState().LeftButton == ButtonState.Pressed && !BoardPosition.hare.Enable && !BoardPosition.houndOne.Enable && userSelectionHarePositionArea.Contains(mousePosition))
                 {
-                    if (!BoardPosition.IsOccupied(clickArea) && BoardPosition.IsHareLegalMove(clickArea))
-                    {
-                        BoardPosition.hare.MovePosition = clickArea;
-                        BoardPosition.hare.Selected = false;
-                        BoardPosition.AIMove(HOUND_MOVE);
-                        Console.WriteLine("moving possiton {0}", BoardPosition.hare.MovePosition);
-                        //BoardPosition.AlphaBeta(10, -1, 2, true, hare, houndOne, houndTwo, houndThree, clickArea, false);
-                    }
+                    BoardPosition.hare.Enable = true;
+                    
+                    hareMoved = true;
                 }
 
+                if (Mouse.GetState().LeftButton == ButtonState.Pressed && !BoardPosition.hare.Enable && !BoardPosition.houndOne.Enable && userSelectionHoundPositionArea.Contains(mousePosition))
+                {
+                    BoardPosition.houndOne.Enable = true;
+                }
             }
+            #endregion
 
-
-            if (BoardPosition.houndOne.Enable)
+            //Console.WriteLine("the hare area {0}", BoardPosition.hare.Area);
+            //timeNeedForAI = "No Move made";
+            
+            if (hareMoved || houndMoved)
             {
-                BoardPosition.houndOne.isClick(mousePosition);
-                BoardPosition.houndTwo.isClick(mousePosition);
-                BoardPosition.houndThree.isClick(mousePosition);
-
-                if (BoardPosition.houndOne.Selected)
+                stopwatch.Start();
+                if (hareMoved)
                 {
-                    hound = BoardPosition.houndOne;
-                    BoardPosition.houndOne.Selected = false;
+                    BoardPosition.AIMove(HOUND_MOVE, mode);
+                    hareMoved = false;
                 }
-                else if (BoardPosition.houndOne.Selected)
+                else if (houndMoved)
                 {
-                    hound = BoardPosition.houndTwo;
-                    BoardPosition.houndTwo.Selected = false;
-                }
-                else if (BoardPosition.houndOne.Selected)
-                {
-                    hound = BoardPosition.houndThree;
-                    BoardPosition.houndThree.Selected = false;
+                    BoardPosition.AIMove(HARE_MOVE, mode);
+                    houndMoved = false;
                 }
                 
-                if (!BoardPosition.IsOccupied(clickArea) && BoardPosition.IsHoundLegalMove(clickArea, hound.Position))
+                stopwatch.Stop();
+                
+                timeNeedForAI = Convert.ToString(stopwatch.Elapsed);
+            }
+            else
+            {
+
+                #region hare move
+                if (BoardPosition.hare.Enable)
                 {
-                    BoardPosition.houndOne.Position = clickArea;
+                    if (!hareMoved)
+                    {
+                        BoardPosition.hare.Selected = true;
+                    }
+                    if (BoardPosition.IsHareWin())
+                    {
+                        Win = "YOU WIN THE GAME!"; 
+                    }
+                    else
+                    {
+                        if (BoardPosition.hare.Selected)
+                        {
+                            //occuped = Convert.ToString(BoardPosition.IsOccupied(clickArea));
+                            if (!BoardPosition.IsOccupied(clickArea) && BoardPosition.IsHareLegalMove(clickArea))
+                            {
+
+                                BoardPosition.hare.MovePosition = clickArea;
+                                BoardPosition.hare.Selected = false;
+                                hareMoved = true;
+                            }
+                        }
+                    }
+
                 }
 
+                #endregion 
+
+                #region hound move
+                if (BoardPosition.houndOne.Enable)
+                {
+                    if (BoardPosition.IsHoundWin())
+                    {
+                        Win = "YOU WIN THE GAME!";
+                    }
+                    else
+                    {
+                        if (houndSelected(mousePosition) == 1)
+                        {
+
+                            if (!BoardPosition.IsOccupied(clickArea) && BoardPosition.IsHoundLegalMove(clickArea, BoardPosition.houndOne.MovePosition))
+                            {
+                                BoardPosition.houndOne.MovePosition = clickArea;
+                                BoardPosition.houndOne.Selected = false;
+                                houndMoved = true;
+                            }
+
+                        }
+                        else if (houndSelected(mousePosition) == 2)
+                        {
+                            if (!BoardPosition.IsOccupied(clickArea) && BoardPosition.IsHoundLegalMove(clickArea, BoardPosition.houndTwo.MovePosition))
+                            {
+                                BoardPosition.houndTwo.MovePosition = clickArea;
+                                BoardPosition.houndTwo.Selected = false;
+                                houndMoved = true;
+                            }
+                        }
+                        else if (houndSelected(mousePosition) == 3)
+                        {
+                            if (!BoardPosition.IsOccupied(clickArea) && BoardPosition.IsHoundLegalMove(clickArea, BoardPosition.houndThree.MovePosition))
+                            {
+                                BoardPosition.houndThree.MovePosition = clickArea;
+                                BoardPosition.houndThree.Selected = false;
+                                houndMoved = true;
+                            };
+                        }
+                    }
+                }
+                #endregion 
+
             }
+
+        
 
             base.Update(gameTime);
         }
@@ -175,6 +262,29 @@ namespace hareNhounds
             GraphicsDevice.Clear(Color.BlanchedAlmond);
 
             spriteBatch.Begin();
+
+            if (timeNeedForAI != null)
+            {
+                spriteBatch.DrawString(font, timeNeedForAI, new Vector2(390, 0), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            }
+
+            if (EasyMode.Selected)
+            {
+                spriteBatch.DrawString(font, EASY_MODE, new Vector2(350,50), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            }
+            else if (ExpertMode.Selected)
+            {
+                spriteBatch.DrawString(font, EXPERT_MODE, new Vector2(350, 50), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+            }
+            else
+            {
+                spriteBatch.DrawString(font, EXPERT_MODE, ExpertMode.Position, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                spriteBatch.DrawString(font, EASY_MODE, EasyMode.Position, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+
+            }
+
+
+            spriteBatch.DrawString(font, Win, new Vector2(390, 30), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
             spriteBatch.Draw(background, backgroundPosition, null, Color.BlanchedAlmond, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
 
@@ -190,6 +300,25 @@ namespace hareNhounds
             base.Draw(gameTime);
 
             
+        }
+
+        private int houndSelected(Point mousePosition)
+        {
+            int result = 0;
+            if (BoardPosition.houndOne.Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+            {
+                result = 1;
+            }
+            else if(BoardPosition.houndTwo.Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+            {
+                result = 2;
+            }
+            else if (BoardPosition.houndThree.Area.Contains(mousePosition) && Mouse.GetState().LeftButton == ButtonState.Pressed)
+            {
+                result = 3;
+            }
+
+            return result;
         }
     }
 }
