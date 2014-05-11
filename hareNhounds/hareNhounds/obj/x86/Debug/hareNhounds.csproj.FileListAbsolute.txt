@@ -8,3 +8,5 @@ c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\
 c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\obj\x86\Debug\hareNhounds.exe
 c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\obj\x86\Debug\hareNhounds.pdb
 C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\font.xnb
+C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\easy.xnb
+C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\expert.xnb

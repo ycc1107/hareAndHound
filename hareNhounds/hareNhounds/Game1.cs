@@ -25,13 +25,19 @@ namespace hareNhounds
         protected string Win = "";
         protected const string EASY_MODE = "EASY MODE";
         protected const string EXPERT_MODE = "EXPERT MODE";
+        protected const string HOUND_SELECTED = "USER : HOUND V.S. AI : HARE";
+        protected const string HARE_SELECTED = "USER : HARE V.S. AI : HOUND";
+
         protected string mode = "";
+        protected bool flag = true;
 
         protected Texture2D background;
 
         protected Vector2 backgroundPosition;
         protected Vector2 userSelectionHarePosition;
         protected Vector2 userSelectionHoundPosition;
+        protected Texture2D expertButton;
+        protected Texture2D easyButton;
         protected Vector2 clickArea;
 
         protected Rectangle userSelectionHarePositionArea;
@@ -49,8 +55,6 @@ namespace hareNhounds
 
         protected ClickableObjBase EasyMode = new ClickableObjBase();
         protected ClickableObjBase ExpertMode = new ClickableObjBase();
-
-        Animal hound;
 
         public Game1()
         {
@@ -70,6 +74,8 @@ namespace hareNhounds
             spriteBatch = new SpriteBatch(GraphicsDevice);
 
             font = Content.Load<SpriteFont>("image/font");
+            expertButton = Content.Load<Texture2D>("image/expert");
+            easyButton = Content.Load<Texture2D>("image/easy");
 
             background = Content.Load<Texture2D>("image/Hare_and_Hounds_board");
             backgroundPosition = BoardPosition.BOARD;
@@ -96,8 +102,8 @@ namespace hareNhounds
 
             mousePosition = new Point(Mouse.GetState().X, Mouse.GetState().Y);
 
-            ExpertMode.Position = new Vector2(50, 50);
-            EasyMode.Position = new Vector2(50, 150);
+            ExpertMode.Position = new Vector2(174, 158);
+            EasyMode.Position = new Vector2(490, 158);
             ExpertMode.MovePosition = ExpertMode.Position;
             EasyMode.MovePosition = EasyMode.Position;
         }
@@ -122,7 +128,7 @@ namespace hareNhounds
             #region mode select
             //Console.WriteLine("the EasyMode area {0}", EasyMode.Area);
             //Console.WriteLine("the mode enable {0}", EasyMode.Selected);
-            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !EasyMode.Enable && !ExpertMode.Enable)
+            if (Mouse.GetState().LeftButton == ButtonState.Pressed && !EasyMode.Enable && !ExpertMode.Enable && flag)
             {
                 EasyMode.isClick(mousePosition);
                 ExpertMode.isClick(mousePosition);
@@ -173,7 +179,7 @@ namespace hareNhounds
                 
                 stopwatch.Stop();
                 
-                timeNeedForAI = Convert.ToString(stopwatch.Elapsed);
+                timeNeedForAI = "AI CALCULATION TIME " + Convert.ToString(stopwatch.Elapsed).Substring(6,10);
             }
             else
             {
@@ -259,42 +265,50 @@ namespace hareNhounds
 
         protected override void Draw(GameTime gameTime)
         {
-            GraphicsDevice.Clear(Color.BlanchedAlmond);
+            
 
             spriteBatch.Begin();
 
             if (timeNeedForAI != null)
             {
-                spriteBatch.DrawString(font, timeNeedForAI, new Vector2(390, 0), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                spriteBatch.DrawString(font, timeNeedForAI, new Vector2(300, 0), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             }
+            
 
-            if (EasyMode.Selected)
+            if (EasyMode.Selected || ExpertMode.Selected)
             {
-                spriteBatch.DrawString(font, EASY_MODE, new Vector2(350,50), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            }
-            else if (ExpertMode.Selected)
-            {
-                spriteBatch.DrawString(font, EXPERT_MODE, new Vector2(350, 50), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                GraphicsDevice.Clear(Color.BlanchedAlmond);
+                if (EasyMode.Selected)
+                {
+                    spriteBatch.DrawString(font, EASY_MODE, Vector2.Zero, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                }
+                else
+                {
+                    spriteBatch.DrawString(font, EXPERT_MODE, Vector2.Zero, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                }
+                spriteBatch.DrawString(font, Win, new Vector2(350, 30), Color.Red, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+
+                spriteBatch.Draw(background, backgroundPosition, null, Color.BlanchedAlmond, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+
+               
+                spriteBatch.Draw(BoardPosition.hare.setImage, userSelectionHarePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                spriteBatch.Draw(BoardPosition.houndOne.setImage, userSelectionHoundPosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                
+
+                spriteBatch.Draw(BoardPosition.hare.setImage, BoardPosition.hare.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                spriteBatch.Draw(BoardPosition.houndOne.setImage, BoardPosition.houndOne.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                spriteBatch.Draw(BoardPosition.houndOne.setImage, BoardPosition.houndTwo.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                spriteBatch.Draw(BoardPosition.houndOne.setImage, BoardPosition.houndThree.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             }
             else
             {
-                spriteBatch.DrawString(font, EXPERT_MODE, ExpertMode.Position, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-                spriteBatch.DrawString(font, EASY_MODE, EasyMode.Position, Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-
+                GraphicsDevice.Clear(Color.White);
+                spriteBatch.Draw(expertButton, ExpertMode.Position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+                spriteBatch.Draw(easyButton, EasyMode.Position, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
             }
 
-
-            spriteBatch.DrawString(font, Win, new Vector2(390, 30), Color.Black, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-
-            spriteBatch.Draw(background, backgroundPosition, null, Color.BlanchedAlmond, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-
-            spriteBatch.Draw(BoardPosition.hare.setImage, userSelectionHarePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            spriteBatch.Draw(BoardPosition.houndOne.setImage, userSelectionHoundPosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-
-            spriteBatch.Draw(BoardPosition.hare.setImage, BoardPosition.hare.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            spriteBatch.Draw(BoardPosition.houndOne.setImage, BoardPosition.houndOne.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            spriteBatch.Draw(BoardPosition.houndOne.setImage, BoardPosition.houndTwo.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
-            spriteBatch.Draw(BoardPosition.houndOne.setImage, BoardPosition.houndThree.MovePosition, null, Color.White, 0, Vector2.Zero, 1, SpriteEffects.None, 1);
+           
+            
 
             spriteBatch.End();
             base.Draw(gameTime);

@@ -37,6 +37,24 @@
       <Output>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\font.xnb</Output>
       <Time>2014-05-10T18:00:58.9551762-04:00</Time>
     </Item>
+    <Item>
+      <Source>image\easy.jpg</Source>
+      <Name>image\easy</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\easy.xnb</Output>
+      <Time>2014-05-11T00:32:46.572735-04:00</Time>
+    </Item>
+    <Item>
+      <Source>image\expert.jpg</Source>
+      <Name>image\expert</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\expert.xnb</Output>
+      <Time>2014-05-11T00:32:46.5747351-04:00</Time>
+    </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
       <ContentProjectGUID>{C4E6A63B-FBCD-4944-B073-DD21C91D508B}</ContentProjectGUID>
