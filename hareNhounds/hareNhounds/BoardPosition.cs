@@ -17,6 +17,7 @@ namespace hareNhounds
     {
 
         #region Constant
+        private const int SPREAD = 100;
         private const int HOUND_NUMBER = 3;
 
         private const int WIN = 1000;
@@ -46,37 +47,30 @@ namespace hareNhounds
         protected const float MID_Y = UP_Y + 108;
         protected const float DOWN_Y = UP_Y + 212;
 
+        protected const int DEPTH = 8;
+        protected const int DEEPER = DEPTH +3;
+        protected const int DEEPEST = DEEPER +3;
 
-        protected const int DEPTH = 18;
-        protected const int DEEPER = DEPTH +5;
-        protected const int DEEPEST = DEEPER +5;
-
-        protected const string EASY_MODE = "EASY";
-        protected const string EXPERT_MODE = "EXPERT";
+        protected const string EASY_MODE = "EASY MODE";
+        protected const string EXPERT_MODE = "EXPERT MODE";
 
         #endregion
-
-        #region TempAdd
 
         public Animal hare;
         public Animal houndOne;
         public Animal houndTwo;
         public Animal houndThree;
-
-        private List<Animal> houndList;
-        private List<string> AIMoveList;
-        private const string BOUNS = "390208";
-
-        private int MoveCounter = 0;
-        private List<string> state = new List<string>();
-        private List<string> repeatMove = new List<string>();
-
-        private List<string> tempFile = new List<string>();
-        int moveNumber = 1;
-
-        #endregion 
             
         #region Protected 
+
+        protected List<Animal> houndList;
+        protected List<string> AIMoveList;
+        //private const string BOUNS = "390208";
+        protected int MoveCounter = 0;
+        protected List<string> state = new List<string>();
+        protected List<string> repeatMove = new List<string>();
+        protected List<string> tempFile = new List<string>();
+        int moveNumber = 1;
 
         protected Vector2 board;
         protected Vector2 left_end;
@@ -213,6 +207,72 @@ namespace hareNhounds
 
         #endregion 
 
+        public void AIMove(int who, string mode)
+        {
+            int depth = DEPTH;
+            int alpha = int.MinValue;
+            int beta = int.MaxValue;
+
+            hare.Position = hare.MovePosition;
+            houndOne.Position = houndOne.MovePosition;
+            houndTwo.Position = houndTwo.MovePosition;
+            houndThree.Position = houndThree.MovePosition;
+
+            if (MoveCounter > 5)
+                depth = DEEPER;
+            if (MoveCounter > 10)
+                depth = DEEPEST;
+
+
+            tempFile = new List<string>();
+            state = new List<string>();
+            AlphaBetaMax(depth, alpha, beta, who, mode);
+
+            using (System.IO.StreamWriter file = System.IO.File.AppendText(@"C:\Users\galaxyan\Documents\GitHub\hareAndHound\WriteLines2.txt"))
+            {
+                file.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{0}~~~~~~~~~~~~~The move counts {1}~~~~~~~~~~~~~~~~~~~~", moveNumber, tempFile.Count);
+                if (moveNumber > 0)
+                {
+                    foreach (string line in tempFile)
+                    {
+                        file.WriteLine(line);
+                    }
+                }
+                moveNumber += 1;
+            }
+
+
+            string newAIMove = AIMoveList.Last();
+
+            //counter += 1;
+
+            int animalIndex = Convert.ToInt32(newAIMove.Substring(6));
+            float x = (float)Convert.ToInt32(newAIMove.Substring(0, 3));
+            float y = (float)Convert.ToInt32(newAIMove.Substring(3, 3));
+            Vector2 newPositon = new Vector2(x, y);
+
+
+            if (animalIndex == ANIMAL_INDEX_HARE)
+            {
+                hare.MovePosition = newPositon;
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_ONE)
+            {
+                houndOne.MovePosition = newPositon;
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_TWO)
+            {
+                houndTwo.MovePosition = newPositon;
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_THREE)
+            {
+                houndThree.MovePosition = newPositon;
+            }
+
+
+        }
+
+        #region Position Related
         public Vector2 SelectArea(Point mousePosition,Vector2 lastClickArea)
         {
             Vector2 result = lastClickArea;
@@ -370,6 +430,42 @@ namespace hareNhounds
             }
             return result;
         }
+
+        private string EncodeMove(Vector2 move, int animalIndex)
+        {
+            string result = "";
+
+            if (animalIndex == ANIMAL_INDEX_HARE)
+            {
+                result = move.X.ToString() + move.Y.ToString() + animalIndex.ToString();
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_ONE)
+            {
+                result = move.X.ToString() + move.Y.ToString() + animalIndex.ToString();
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_TWO)
+            {
+                result = move.X.ToString() + move.Y.ToString() + animalIndex.ToString();
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_THREE)
+            {
+                result = move.X.ToString() + move.Y.ToString() + animalIndex.ToString();
+            }
+
+            return result;
+        }
+
+        private Vector2 DecodeMove(string encodeMove)
+        {
+            Vector2 result = Vector2.Zero;
+
+            result.X = (float)Convert.ToInt32(encodeMove.Substring(0, 3));
+            result.Y = (float)Convert.ToInt32(encodeMove.Substring(3, 3));
+
+            return result;
+        }
+
+        #endregion 
 
         public List<string> PossibleMove(int who, bool play = true)
         {
@@ -550,70 +646,7 @@ namespace hareNhounds
             return result;
         }
 
-        public void AIMove(int who,string mode)
-        {
-            int depth = DEPTH;
-            int alpha = int.MinValue;
-            int beta = int.MaxValue;
-
-            hare.Position = hare.MovePosition;
-            houndOne.Position = houndOne.MovePosition;
-            houndTwo.Position = houndTwo.MovePosition;
-            houndThree.Position = houndThree.MovePosition;
-
-            if (MoveCounter > 5)
-                depth = DEEPER;
-
-           
-            tempFile = new List<string>();
-            state = new List<string>();
-            AlphaBetaMax(depth, alpha, beta, who,mode);
-            
-            using (System.IO.StreamWriter file = System.IO.File.AppendText(@"C:\Users\galaxyan\Documents\GitHub\hareAndHound\WriteLines2.txt"))
-            {
-                if (moveNumber > 0)
-                {
-                    foreach (string line in tempFile)
-                    {
-                        file.WriteLine(line);
-                        //Console.WriteLine(" the line {0}", line);
-
-                    }
-                }
-                file.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~{0}~~~~~~~~~~~~~The move counts {1}~~~~~~~~~~~~~~~~~~~~", moveNumber, tempFile.Count);
-                moveNumber +=1;
-            }
-            
-
-            string newAIMove = AIMoveList.Last() ;
-   
-            //counter += 1;
-
-            int animalIndex = Convert.ToInt32(newAIMove.Substring(6));
-            float x = (float)Convert.ToInt32(newAIMove.Substring(0, 3));
-            float y = (float)Convert.ToInt32(newAIMove.Substring(3, 3));
-            Vector2 newPositon = new Vector2(x,y);
-
-            
-            if (animalIndex == ANIMAL_INDEX_HARE)
-            {
-                hare.MovePosition = newPositon;
-            }
-            else if (animalIndex == ANIMAL_INDEX_HOUND_ONE)
-            {
-                houndOne.MovePosition = newPositon;
-            }
-            else if (animalIndex == ANIMAL_INDEX_HOUND_TWO)
-            {
-                houndTwo.MovePosition = newPositon;
-            }
-            else if (animalIndex == ANIMAL_INDEX_HOUND_THREE)
-            {
-                houndThree.MovePosition = newPositon;
-            }
-            
-            
-        }
+        #region Evaulation 
 
         private int Evaluation(int who,string mode)
         {
@@ -622,24 +655,33 @@ namespace hareNhounds
             {
                 if (who == HARE_MOVE)
                 {
-                    result = HareAdvantage() - HoundAdvantage();
+                    result = HareAdvantage(mode) - HoundAdvantage(mode);
                 }
                 else
                 {
 
-                    result = HoundAdvantage() - HareAdvantage();
+                    result = HoundAdvantage(mode) - HareAdvantage(mode);
                 }
             }
             else if (mode == EXPERT_MODE)
             {
-                return 0;
+
+                if (who == HARE_MOVE)
+                {
+                    result = HareAdvantage(mode) - HoundAdvantage(mode);
+                }
+                else
+                {
+
+                    result = HoundAdvantage(mode) - HareAdvantage(mode);
+                }
             }
 
             return  result;
             
         }
 
-        private int HareAdvantage()
+        private int HareAdvantage(string mode)
         {
             int result = 0;
             int addScore = 0;
@@ -647,7 +689,6 @@ namespace hareNhounds
             double dist = (Math.Sqrt(Math.Pow((houndOne.Position.X - hare.Position.X), 2) + Math.Pow((houndOne.Position.Y - hare.Position.Y), 2)) +
                             Math.Sqrt(Math.Pow((houndTwo.Position.X - hare.Position.X), 2) + Math.Pow((houndTwo.Position.Y - hare.Position.Y), 2)) +
                             Math.Sqrt(Math.Pow((houndThree.Position.X - hare.Position.X), 2) + Math.Pow((houndThree.Position.Y - hare.Position.Y), 2))) / 3;
-            int threeModSocre = (BoardValue(hare.Position) + BoardValue(houndOne.Position) + BoardValue(houndTwo.Position) + BoardValue(houndThree.Position)) % 3;
 
             if (hare.Position.X <= lastHoundPosition)
             {
@@ -665,266 +706,48 @@ namespace hareNhounds
                 addScore += Convert.ToInt32(Convert.ToDouble(GOOD_MOVE) * 50 / dist);
             }
 
-            if(threeModSocre == 3)
-            {
-                addScore = BAD_MOVE;
-            }
-            else if (threeModSocre == 2 && threeModSocre == 1)
-            {
-                addScore = GOOD_MOVE;
-            }
-            
-            if(hare.Position == SECOND_COLUMN_MID )
-            {
-                addScore = GREAT_MOVE;
-            }
-
             result += addScore;
             return result;
         }
 
-        private int HoundAdvantage()
+        // distance between hare and hounds should be small
+        // hounds position should be limited to exceed hare position
+        private int HoundAdvantage(string mode)
         {
+           
             int result = 0;
             int addScore = 0;
-            double dist = (Math.Sqrt(Math.Pow((houndOne.Position.X - hare.Position.X), 2) + Math.Pow((houndOne.Position.Y - hare.Position.Y), 2)) +
-                            Math.Sqrt(Math.Pow((houndTwo.Position.X - hare.Position.X), 2) + Math.Pow((houndTwo.Position.Y - hare.Position.Y), 2)) +
-                            Math.Sqrt(Math.Pow((houndThree.Position.X - hare.Position.X), 2) + Math.Pow((houndThree.Position.Y - hare.Position.Y), 2))) / 3;
-            //Console.WriteLine(" the distance {0}", dist);
-            int threeModSocre = (BoardValue(hare.Position) + BoardValue(houndOne.Position) + BoardValue(houndTwo.Position) + BoardValue(houndThree.Position)) % 3;
+            double dist = Math.Abs((3 * hare.Position.X - (houndOne.Position.X + houndTwo.Position.X + houndThree.Position.X)) / 3 );
+            double houndDist = (houndOne.Position.X + houndTwo.Position.X + houndThree.Position.X)/3 - LEFT_END.X;
 
+            //Console.WriteLine(" the distance {0}       {1}", dist,houndDist);
+            
             if (PossibleMove(HARE_MOVE).Count == 0)
             {
                 result = WIN;
             }
-            else if (dist <= 100)
-            {
-                addScore += GREAT_MOVE;
-            }
-            else if (dist <= 150)
+            else if (dist <= 110)
             {
                 addScore += BETTER_MOVE;
             }
-            else if (dist <= 200)
+            else if (dist <= 220)
             {
                 addScore += GOOD_MOVE;
             }
-            else if (dist <= 250)
+            else if (dist <= 330)
             {
                 addScore += NORMAL_MOVE;
             }
-            if (houndOne.Position.X - hare.Position.X<0 || houndTwo.Position.X - hare.Position.X <0 || houndThree.Position.X - hare.Position.X <0)
+            if (houndOne.Position.X <= hare.Position.X  || houndTwo.Position.X <= hare.Position.X  || houndThree.Position.X <= hare.Position.X )
             {
                 addScore += BAD_MOVE;
             }
-
-            if (threeModSocre == 3)
+            if (houndDist > 120)
             {
                 addScore += BAD_MOVE;
-            }
-            else if (threeModSocre == 2 && threeModSocre == 1)
-            {
-                addScore = GOOD_MOVE;
-            }
-
-            if (houndOne.Position == SECOND_COLUMN_MID || houndTwo.Position == SECOND_COLUMN_MID || houndThree.Position == SECOND_COLUMN_MID)
-            {
-                addScore = GREAT_MOVE;
             }
 
             result += addScore;
-            return result;
-        }
-
-        public bool IsHareWin()
-        {
-            bool result = false;
-
-            float lastHoundPosition = Math.Min(houndOne.MovePosition.X, Math.Min(houndThree.MovePosition.X, houndTwo.MovePosition.X));
-            if (hare.MovePosition.X <= lastHoundPosition)
-                result = true;
-
-            return result;
-        }
-
-        public bool IsHoundWin()
-        {
-            bool result = false;
-            if (PossibleMove(HARE_MOVE).Count == 0)
-                result = true;
-
-            return result;
-        }
-
-        private void MoveAnimal(string move)
-        {
-            int animalIndex = Convert.ToInt32(move.Substring(6));
-            Vector2 tempPositionStorage = Vector2.Zero;
-            float x = (float)Convert.ToInt32(move.Substring(0, 3));
-            float y = (float)Convert.ToInt32(move.Substring(3, 3));
-            Vector2 newPositon = new Vector2(x, y);
-
-            if (animalIndex == ANIMAL_INDEX_HARE)
-            {
-                tempPositionStorage = hare.Position;
-                hare.Position = newPositon;
-            }
-            else if (animalIndex == ANIMAL_INDEX_HOUND_ONE)
-            {
-                tempPositionStorage = houndOne.Position;
-                houndOne.Position = newPositon;
-            }
-            else if (animalIndex == ANIMAL_INDEX_HOUND_TWO)
-            {
-                tempPositionStorage = houndTwo.Position;
-                houndTwo.Position = newPositon;
-            }
-            else if (animalIndex == ANIMAL_INDEX_HOUND_THREE)
-            {
-                tempPositionStorage = houndThree.Position;
-                houndThree.Position = newPositon;
-            }
-            state.Add(EncodeMove(tempPositionStorage, animalIndex));
-        }
-
-
-        private void UndoMove()
-        {
-            string image = state.Last();
-            state.RemoveAt(state.Count - 1);
-            int animalIndex = Convert.ToInt32(image.Substring(6));
-            float x = (float)Convert.ToInt32(image.Substring(0, 3));
-            float y = (float)Convert.ToInt32(image.Substring(3, 3));
-            Vector2 oldPositon = new Vector2(x, y);
-
-            if (animalIndex == ANIMAL_INDEX_HARE)
-            {
-                hare.Position = oldPositon;
-            }
-            else if (animalIndex == ANIMAL_INDEX_HOUND_ONE)
-            {
-                houndOne.Position = oldPositon;
-            }
-            else if (animalIndex == ANIMAL_INDEX_HOUND_TWO)
-            {
-                houndTwo.Position = oldPositon;
-            }
-            else if (animalIndex == ANIMAL_INDEX_HOUND_THREE)
-            {
-                houndThree.Position = oldPositon;
-            }
-        }
-
-        private int AlphaBetaMin(int depth, int alpha, int beta, int who, string mode)
-        {
-            List<string> listMove = PossibleMove(who,false);
-
-            if (depth == 0 || listMove.Count == 0 || IsHareWin())
-            {
-                //nsole.WriteLine("depth {0}", depth);
-                return Evaluation(who, mode);
-            }
-            int score = int.MaxValue;
-
-            foreach (string move in listMove)
-            {
-                
-                //if (StageImage())
-                    //continue;
-                who = 1 - who;
-
-                string temp = "Depth: " + Convert.ToString(depth) + ",Score :" + Convert.ToString(Evaluation(who, mode)) + ", AB Pruning Stage :MIN" + ",Who: " + who + ",Move :" + move;
-                tempFile.Add(temp);
-                
-                MoveAnimal(move);
-                score = Math.Min(score, AlphaBetaMax(depth - 1, alpha, beta, who, mode));
-                UndoMove();
-                if (score <= alpha)
-                    return alpha;
-                if (score < beta)
-                {
-                    beta = score;
-                }
-
-            }
-            return beta;
-        } 
-
-        private int AlphaBetaMax(int depth, int alpha, int beta, int who,string mode)
-        {
-            List<string> listMove = PossibleMove(who, false);
-            string bestMove = "";
-
-            if (depth == 0 || listMove.Count == 0 || IsHareWin())
-            {
-                //Console.WriteLine("depth {0}", depth);
-                return Evaluation(who, mode);
-            }
-
-
-
-            int score = int.MinValue;
-            foreach (string move in listMove)
-            {
-                
-                who = 1 - who;
-
-                string temp = "Depth: " + Convert.ToString(depth) + ",Score :" + Convert.ToString(Evaluation(who, mode)) + ", AB Pruning Stage :MAX" + ",Who: " + who + ",Move :" + move;
-                tempFile.Add(temp);
-
-                MoveAnimal(move);
-                //Console.WriteLine("the depht numbner {0}",depth);
-                score = Math.Max(score, AlphaBetaMin(depth - 1, alpha, beta, who, mode));
-
-
-                UndoMove();
-                if (score >= beta)
-                    return beta;
-                if (score > alpha)
-                {
-                    alpha = score;
-                    bestMove = move;
-                }
-
-            }
-            AIMoveList.Add(bestMove);
-            return alpha;
-
-        }
-
-        #endregion
-
-        private string EncodeMove(Vector2 move, int animalIndex)
-        {
-            string result = "";
-
-            if (animalIndex == ANIMAL_INDEX_HARE)
-            {
-                result = move.X.ToString() + move.Y.ToString() + animalIndex.ToString();
-            }
-            else if(animalIndex == ANIMAL_INDEX_HOUND_ONE)
-            {
-                result = move.X.ToString() + move.Y.ToString() + animalIndex.ToString();
-            }
-            else if(animalIndex == ANIMAL_INDEX_HOUND_TWO)
-            {
-                result = move.X.ToString() + move.Y.ToString() + animalIndex.ToString();
-            }
-            else if(animalIndex == ANIMAL_INDEX_HOUND_THREE)
-            {
-                result = move.X.ToString() + move.Y.ToString() + animalIndex.ToString();
-            }
-
-            return result;
-        }
-
-        private Vector2 DecodeMove(string encode)
-        {
-            Vector2 result = Vector2.Zero;
-
-            result.X = (float)Convert.ToInt32(encode.Substring(0, 3));
-            result.Y = (float)Convert.ToInt32(encode.Substring(3, 3));
-
             return result;
         }
 
@@ -962,6 +785,240 @@ namespace hareNhounds
 
             return result;
         }
+
+        public bool IsHareWin()
+        {
+            bool result = false;
+
+            float lastHoundPosition = Math.Min(houndOne.MovePosition.X, Math.Min(houndThree.MovePosition.X, houndTwo.MovePosition.X));
+            if (hare.MovePosition.X <= lastHoundPosition)
+                result = true;
+
+            return result;
+        }
+
+        public bool IsHoundWin()
+        {
+            bool result = false;
+            if (PossibleMove(HARE_MOVE).Count == 0)
+                result = true;
+
+            return result;
+        }
+
+        // Implement 3 mod theory 
+        // Add all posiitions value moded by 3, if the result is 0 , it is a weak spot
+        //      3 -- 1 -- 0 
+        // 5 -- 4 -- 2 -- 1 -- -1  
+        //      3 -- 1 -- 0
+        //
+        //      Z -- W -- Z 
+        // S -- T -- S -- T -- S  
+        //      Z -- W -- Z
+        //
+        // W : weak position should be avoid
+        // S : strong position should be occpied
+        //
+        private int MoveEvaulation(string mode,int score,string move)
+        {
+            int result = score;
+            if (mode == EXPERT_MODE)
+            {
+                int who = Convert.ToInt32(move.Substring(6));
+                int threeModSocre = (BoardValue(hare.Position) + BoardValue(houndOne.Position) + BoardValue(houndTwo.Position) + BoardValue(houndThree.Position)) % 3;
+                if (threeModSocre == 3)
+                {
+                    result += BAD_MOVE;
+                }
+                else if (threeModSocre == 2 && threeModSocre == 1)
+                {
+                    result += NORMAL_MOVE;
+                }
+
+                if (who == ANIMAL_INDEX_HARE)
+                {
+                    if (hare.Position == SECOND_COLUMN_MID || hare.Position == RIGHT_END || hare.Position == LEFT_END)
+                    {
+                        result += GREAT_MOVE;
+                    }
+                    if (hare.Position == SECOND_COLUMN_DOWN || hare.Position == SECOND_COLUMN_UP)
+                    {
+                        result += BAD_MOVE;
+                    }
+                }
+                else
+                {
+                    if (houndOne.Position == SECOND_COLUMN_MID || houndTwo.Position == SECOND_COLUMN_MID || houndThree.Position == SECOND_COLUMN_MID)
+                    {
+                        result += GREAT_MOVE;
+                    }
+                    if (houndOne.Position == SECOND_COLUMN_DOWN || houndOne.Position == SECOND_COLUMN_UP || houndTwo.Position == SECOND_COLUMN_DOWN || houndTwo.Position == SECOND_COLUMN_UP || houndThree.Position == SECOND_COLUMN_DOWN || houndThree.Position == SECOND_COLUMN_UP)
+                    {
+                        result += BAD_MOVE;
+                    }
+                    if (who == ANIMAL_INDEX_HOUND_ONE && houndOne.Position.X > houndTwo.Position.X + SPREAD && houndOne.Position.X > houndThree.Position.X + SPREAD)
+                    {
+                        result += BAD_MOVE;
+                    }
+                    if (who == ANIMAL_INDEX_HOUND_TWO && houndTwo.Position.X > houndOne.Position.X + SPREAD && houndTwo.Position.X > houndThree.Position.X + SPREAD)
+                    {
+                        result += BAD_MOVE;
+                    }
+                    if (who == ANIMAL_INDEX_HOUND_THREE && houndThree.Position.X > houndTwo.Position.X + SPREAD && houndThree.Position.X > houndOne.Position.X + SPREAD)
+                    {
+                        result += BAD_MOVE;
+                    }
+
+                }
+              }
+            return result;
+          }
+        
+
+        #endregion 
+
+        private void MoveAnimal(string move)
+        {
+            int animalIndex = Convert.ToInt32(move.Substring(6));
+            Vector2 tempPositionStorage = Vector2.Zero;
+            float x = (float)Convert.ToInt32(move.Substring(0, 3));
+            float y = (float)Convert.ToInt32(move.Substring(3, 3));
+            Vector2 newPositon = new Vector2(x, y);
+
+            if (animalIndex == ANIMAL_INDEX_HARE)
+            {
+                tempPositionStorage = hare.Position;
+                hare.Position = newPositon;
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_ONE)
+            {
+                tempPositionStorage = houndOne.Position;
+                houndOne.Position = newPositon;
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_TWO)
+            {
+                tempPositionStorage = houndTwo.Position;
+                houndTwo.Position = newPositon;
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_THREE)
+            {
+                tempPositionStorage = houndThree.Position;
+                houndThree.Position = newPositon;
+            }
+            state.Add(EncodeMove(tempPositionStorage, animalIndex));
+        }
+
+        private void UndoMove()
+        {
+            string image = state.Last();
+            state.RemoveAt(state.Count - 1);
+            int animalIndex = Convert.ToInt32(image.Substring(6));
+            float x = (float)Convert.ToInt32(image.Substring(0, 3));
+            float y = (float)Convert.ToInt32(image.Substring(3, 3));
+            Vector2 oldPositon = new Vector2(x, y);
+
+            if (animalIndex == ANIMAL_INDEX_HARE)
+            {
+                hare.Position = oldPositon;
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_ONE)
+            {
+                houndOne.Position = oldPositon;
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_TWO)
+            {
+                houndTwo.Position = oldPositon;
+            }
+            else if (animalIndex == ANIMAL_INDEX_HOUND_THREE)
+            {
+                houndThree.Position = oldPositon;
+            }
+            
+        }
+
+        private int AlphaBetaMin(int depth, int alpha, int beta, int who, string mode)
+        {
+            List<string> listMove = PossibleMove(who,false);
+
+            if (depth == 0 || listMove.Count == 0 || IsHareWin())
+            {
+                //nsole.WriteLine("depth {0}", depth);
+                return Evaluation(who, mode);
+            }
+            int score = int.MaxValue;
+
+            foreach (string move in listMove)
+            {
+                
+                //if (StageImage())
+                    //continue;
+                who = 1 - who;
+
+                MoveAnimal(move);
+                score = Math.Min(score, AlphaBetaMax(depth - 1, alpha, beta, who, mode));
+                score = MoveEvaulation(mode, score, move);
+
+                string temp = "Depth: " + Convert.ToString(depth) + ",Score :" + Convert.ToString(Evaluation(who, mode)) + ", AB Pruning Stage :MAX" + ",Who: " + who + ",Move :" + move;
+                tempFile.Add(temp);
+                UndoMove();
+                if (score <= alpha)
+                    return alpha;
+                if (score < beta)
+                {
+                    beta = score;
+                }
+
+            }
+            return beta;
+        } 
+
+        private int AlphaBetaMax(int depth, int alpha, int beta, int who,string mode)
+        {
+            List<string> listMove = PossibleMove(who, false);
+            string bestMove = "";
+
+            if (depth == 0 || listMove.Count == 0 || IsHareWin())
+            {
+                //Console.WriteLine("depth {0}", depth);
+                return Evaluation(who, mode);
+            }
+
+
+
+            int score = int.MinValue;
+            foreach (string move in listMove)
+            {
+                
+                who = 1 - who;
+                MoveAnimal(move);
+                //Console.WriteLine("the depht numbner {0}",depth);
+                score = Math.Max(score, AlphaBetaMin(depth - 1, alpha, beta, who, mode));
+                score = MoveEvaulation(mode, score, move);
+                
+
+                string temp = "Depth: " + Convert.ToString(depth) + ",Score :" + Convert.ToString(Evaluation(who, mode)) + ", AB Pruning Stage :MAX" + ",Who: " + who + ",Move :" + move;
+                tempFile.Add(temp);
+
+                UndoMove();
+                if (score >= beta)
+                    return beta;
+                if (score > alpha)
+                {
+                    alpha = score;
+                    bestMove = move;
+                }
+
+            }
+            AIMoveList.Add(bestMove);
+            return alpha;
+
+        }
+
+        #endregion
+
+        
+
+
 
     }
 }
