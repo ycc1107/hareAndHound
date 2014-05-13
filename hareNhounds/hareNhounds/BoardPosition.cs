@@ -65,6 +65,8 @@ namespace hareNhounds
 
         private List<Animal> houndList;
         private List<string> AIMoveList;
+        private List<string> RepeatStage = new List<string>();
+
         private int score;
         private const string BOUNS = "390208";
 
@@ -175,7 +177,7 @@ namespace hareNhounds
 
            AIMoveList = new List<string>();
 
-
+           RepeatStage.Add(" ");
         }
 
         #region Get position in board
@@ -620,12 +622,12 @@ namespace hareNhounds
             {
                 if (who == HARE_MOVE)
                 {
-                    result = HareAdvantage() - HoundAdvantage();
+                    result = HareAdvantage();// -HoundAdvantage();
                 }
                 else
                 {
 
-                    result = HoundAdvantage() - HareAdvantage();
+                    result = HoundAdvantage();// -HareAdvantage();
                 }
             }
             else if (mode == EXPERT_MODE)
@@ -644,22 +646,33 @@ namespace hareNhounds
             double dist = (Math.Sqrt(Math.Pow((houndOne.Position.X - hare.Position.X), 2) + Math.Pow((houndOne.Position.Y - hare.Position.Y), 2)) +
                             Math.Sqrt(Math.Pow((houndTwo.Position.X - hare.Position.X), 2) + Math.Pow((houndTwo.Position.Y - hare.Position.Y), 2)) +
                             Math.Sqrt(Math.Pow((houndThree.Position.X - hare.Position.X), 2) + Math.Pow((houndThree.Position.Y - hare.Position.Y), 2))) / 3;
-            if (hare.Position.X <= lastHoundPosition)
+
+            int threeModSocre = (BoardValue(hare.Position) + BoardValue(houndOne.Position) + BoardValue(houndTwo.Position) + BoardValue(houndThree.Position)) % 3;
+
+            if (threeModSocre == 0)
             {
-                result = WIN;
+                result = 80;
             }
-            else if (hare.Position.X <= FIRST_COLUMN_X)
+            else if (hare.Position.X <= lastHoundPosition)
             {
-                result = Convert.ToInt32(Convert.ToDouble(BAND_8) * 50/ dist);
+               result = WIN;
             }
-            else if (hare.Position.X <= SECOND_COLUMN_X)
+            else if (threeModSocre == 1 && hare.Position.X > THIRD_COLUMN_X)
             {
-                result = Convert.ToInt32(Convert.ToDouble(BAND_6) * 50 / dist); 
+               result = Convert.ToInt32(Convert.ToDouble(BAND_8) * 50 / dist);
             }
-            else if (hare.Position.X <= THIRD_COLUMN_X)
+            else if (threeModSocre == 2 && hare.Position.X > THIRD_COLUMN_X)
             {
-                result = Convert.ToInt32(Convert.ToDouble(BAND_4) * 50 / dist);
+               result = Convert.ToInt32(Convert.ToDouble(BAND_6) * 50 / dist);
             }
+                    /*
+                else if (hare.Position.X <= THIRD_COLUMN_X)
+                {
+                    result = Convert.ToInt32(Convert.ToDouble(BAND_4) * 50 / dist);
+                }
+                     */
+            
+
             return result;
         }
 
@@ -670,30 +683,71 @@ namespace hareNhounds
                             Math.Sqrt(Math.Pow((houndTwo.Position.X - hare.Position.X), 2) + Math.Pow((houndTwo.Position.Y - hare.Position.Y), 2)) +
                             Math.Sqrt(Math.Pow((houndThree.Position.X - hare.Position.X), 2) + Math.Pow((houndThree.Position.Y - hare.Position.Y), 2))) / 3;
             //Console.WriteLine(" the distance {0}", dist);
+            int threeModSocre = (BoardValue(hare.Position) + BoardValue(houndOne.Position) + BoardValue(houndTwo.Position) + BoardValue(houndThree.Position)) % 3;
 
-            if (PossibleMove(HARE_MOVE).Count == 0)
+            if (threeModSocre == 0)
             {
-                result = WIN;
+                result = 80;
             }
-            else if (dist <= 100)
+            else
             {
-                result = BAND_8;
+                if (PossibleMove(HARE_MOVE).Count == 0)
+                {
+                    result = WIN;
+                }
+                else if (dist <= 100)
+                {
+                    result = BAND_8;
+                }
+                else if (dist <= 150)
+                {
+                    result = BAND_6;
+                }
+                else if (dist <= 200)
+                {
+                    result = BAND_4;
+                }
+                else if (dist <= 250)
+                {
+                    result = BAND_2;
+                }
+                if (houndOne.Position.X - hare.Position.X < 0 || houndTwo.Position.X - hare.Position.X < 0 || houndThree.Position.X - hare.Position.X < 0)
+                {
+                    result = 0;
+                }
             }
-            else if (dist <= 150)
+            return result;
+        }
+        private int BoardValue(Vector2 position)
+        {
+            int result = 0;
+            if (position == LEFT_END)
             {
-                result = BAND_6;
+                result = 5;
             }
-            else if (dist <= 200)
+            else if (position == FIRST_COLUMN_DOWN || position == FIRST_COLUMN_UP)
             {
-                result = BAND_4;
+                result = 3;
             }
-            else if (dist <= 250)
+            else if (position == SECOND_COLUMN_DOWN || position == SECOND_COLUMN_UP || position == THIRD_COLUMN_MID)
             {
-                result = BAND_2;
+                result = 1;
             }
-            if (houndOne.Position.X - hare.Position.X<0 || houndTwo.Position.X - hare.Position.X <0 || houndThree.Position.X - hare.Position.X <0)
+            else if (position== THIRD_COLUMN_DOWN || position == THIRD_COLUMN_UP)
             {
                 result = 0;
+            }
+            else if (position == FIRST_COLUMN_MID)
+            {
+                result = 4;
+            }
+            else if(position == SECOND_COLUMN_MID)
+            {
+                result = 2;
+            }
+            else if (position == RIGHT_END)
+            {
+                result = -1;
             }
 
             return result;
@@ -752,11 +806,10 @@ namespace hareNhounds
             if (depth == 0 || listMove.Count == 0)
             {
                 //Console.WriteLine("depth {0}", depth);
-                string temp = Convert.ToString(depth) + " " + Convert.ToString(Evaluation(who, mode)) + "  MIN";
+                string temp = Convert.ToString(depth) + "+++" + Convert.ToString(Evaluation(who, mode)) + "+++MIN";
                 tempFile.Add(temp);
                 return Evaluation(who, mode);
             }
-            
 
             foreach (string move in listMove)
             {
@@ -786,24 +839,41 @@ namespace hareNhounds
             if (depth == 0 || listMove.Count == 0)
             {
                 //Console.WriteLine("depth {0}", depth);
-                string temp = Convert.ToString(depth)+" "+Convert.ToString(Evaluation(who,mode))+"  MAX";
+                string temp = Convert.ToString(depth)+"+++"+Convert.ToString(Evaluation(who,mode))+"+++MAX";
                 tempFile.Add(temp);
                 return Evaluation(who, mode);
             }
             
-
+            
             foreach (string move in listMove)
             {
                 //if (StageImage())
                    // continue;
-               
+                if (RepeatStage.Count >=0 )
+                {
+                    
+                    if (RepeatStage.Count >= 11)
+                    {
+                        foreach (string str in RepeatStage)
+                        {
+                            Console.WriteLine(str);
+                        }
+                        Console.WriteLine("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+                        RepeatStage = new List<string>();
+                        continue;
+                    }
+                    else if (move == RepeatStage[RepeatStage.Count - 1])
+                    {
+                        RepeatStage.Add(move);
+                    }
+                }
                 who = 1 - who;
                 MoveAnimal(move);
                 //Console.WriteLine("the depht numbner {0}",depth);
                 score = AlphaBetaMin(depth - 1, alpha, beta, who, mode);
                 if (score >= beta)
                     return beta;
-                if (score > alpha)
+                if (score >= alpha)
                 {
                     alpha = score;
                     bestMove = move;
