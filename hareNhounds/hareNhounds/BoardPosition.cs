@@ -25,10 +25,10 @@ namespace hareNhounds
         private const int BETTER_MOVE = 30;
         private const int GOOD_MOVE = 20;
         private const int NORMAL_MOVE = 20;
-        private const int BAD_MOVE = -30;
+        private const int BAD_MOVE = -40;
 
         private const int HARE_MOVE = 1;
-        private const int HOUND_MOVE = 0;
+        private const int HOUND_MOVE = -1;
 
 
         private const int ANIMAL_INDEX_HARE = 1;
@@ -218,10 +218,10 @@ namespace hareNhounds
             houndTwo.Position = houndTwo.MovePosition;
             houndThree.Position = houndThree.MovePosition;
 
-            if (MoveCounter > 5)
-                depth = DEEPER;
-            if (MoveCounter > 10)
-                depth = DEEPEST;
+            //if (MoveCounter > 5)
+                //depth = DEEPER;
+            //if (MoveCounter > 10)
+                //depth = DEEPEST;
 
 
             tempFile = new List<string>();
@@ -651,34 +651,17 @@ namespace hareNhounds
         private int Evaluation(int who,string mode)
         {
             int result = 0;
-            if (mode == EASY_MODE)
+            if (who == HARE_MOVE)
             {
-                if (who == HARE_MOVE)
-                {
-                    result = HareAdvantage(mode) - HoundAdvantage(mode);
-                }
-                else
-                {
-
-                    result = HoundAdvantage(mode) - HareAdvantage(mode);
-                }
+                result = HareAdvantage(mode);// -HoundAdvantage(mode);
             }
-            else if (mode == EXPERT_MODE)
+            else
             {
 
-                if (who == HARE_MOVE)
-                {
-                    result = HareAdvantage(mode) - HoundAdvantage(mode);
-                }
-                else
-                {
-
-                    result = HoundAdvantage(mode) - HareAdvantage(mode);
-                }
+                result = HoundAdvantage(mode);// -HareAdvantage(mode);
             }
 
             return  result;
-            
         }
 
         private int HareAdvantage(string mode)
@@ -718,35 +701,41 @@ namespace hareNhounds
             int result = 0;
             int addScore = 0;
             double dist = Math.Abs((3 * hare.Position.X - (houndOne.Position.X + houndTwo.Position.X + houndThree.Position.X)) / 3 );
-            double houndDist = (houndOne.Position.X + houndTwo.Position.X + houndThree.Position.X)/3 - LEFT_END.X;
+            double houndDist = (houndOne.Position.X + houndTwo.Position.X + houndThree.Position.X) - 3 * LEFT_END.X;
 
             //Console.WriteLine(" the distance {0}       {1}", dist,houndDist);
-            
-            if (PossibleMove(HARE_MOVE).Count == 0)
+            if (PossibleMove(HARE_MOVE, false).Count == 0)
             {
                 result = WIN;
             }
-            else if (dist <= 110)
+            else
             {
-                addScore += BETTER_MOVE;
-            }
-            else if (dist <= 220)
-            {
-                addScore += GOOD_MOVE;
-            }
-            else if (dist <= 330)
-            {
-                addScore += NORMAL_MOVE;
-            }
-            if (houndOne.Position.X <= hare.Position.X  || houndTwo.Position.X <= hare.Position.X  || houndThree.Position.X <= hare.Position.X )
-            {
-                addScore += BAD_MOVE;
-            }
-            if (houndDist > 120)
-            {
-                addScore += BAD_MOVE;
-            }
+                if(dist <= 10)
+                {
+                    addScore += GREAT_MOVE;
+                }
+                if (dist <= 110)
+                {
+                    addScore += BETTER_MOVE;
+                }
+                else if (dist <= 220)
+                {
+                    addScore += NORMAL_MOVE;
+                }
+                else if (dist <= 330)
+                {
+                    addScore += BAD_MOVE;
+                }
 
+                if (houndOne.Position.X >= hare.Position.X || houndTwo.Position.X >= hare.Position.X || houndThree.Position.X >= hare.Position.X)
+                {
+                    addScore += BAD_MOVE;
+                }
+                if (houndDist > 220)
+                {
+                    addScore += BAD_MOVE;
+                }
+            }
             result += addScore;
             return result;
         }
@@ -819,9 +808,9 @@ namespace hareNhounds
         // W : weak position should be avoid
         // S : strong position should be occpied
         //
-        private int MoveEvaulation(string mode,int score,string move)
+        private int MoveEvaulation(string mode,string move)
         {
-            int result = score;
+            int result = 0;
             if (mode == EXPERT_MODE)
             {
                 int who = Convert.ToInt32(move.Substring(6));
@@ -943,29 +932,33 @@ namespace hareNhounds
             if (depth == 0 || listMove.Count == 0 || IsHareWin())
             {
                 //nsole.WriteLine("depth {0}", depth);
-                return Evaluation(who, mode);
+                return who*Evaluation(who, mode);
             }
             int score = int.MaxValue;
 
+            who = -1 * who;
             foreach (string move in listMove)
             {
                 
                 //if (StageImage())
                     //continue;
-                who = 1 - who;
-
                 MoveAnimal(move);
                 score = Math.Min(score, AlphaBetaMax(depth - 1, alpha, beta, who, mode));
-                score = MoveEvaulation(mode, score, move);
+                int valueAdd = MoveEvaulation(mode, move);
+                score += valueAdd;
 
                 string temp = "Depth: " + Convert.ToString(depth) + ",Score :" + Convert.ToString(Evaluation(who, mode)) + ", AB Pruning Stage :MAX" + ",Who: " + who + ",Move :" + move;
                 tempFile.Add(temp);
                 UndoMove();
                 if (score <= alpha)
+                {
+                    score -= valueAdd;
                     return alpha;
+                }
                 if (score < beta)
                 {
                     beta = score;
+                    score -= valueAdd;
                 }
 
             }
@@ -980,31 +973,33 @@ namespace hareNhounds
             if (depth == 0 || listMove.Count == 0 || IsHareWin())
             {
                 //Console.WriteLine("depth {0}", depth);
-                return Evaluation(who, mode);
+                return who * Evaluation(who, mode);
             }
 
 
-
+            who = -1 * who;
             int score = int.MinValue;
             foreach (string move in listMove)
             {
-                
-                who = 1 - who;
                 MoveAnimal(move);
                 //Console.WriteLine("the depht numbner {0}",depth);
                 score = Math.Max(score, AlphaBetaMin(depth - 1, alpha, beta, who, mode));
-                score = MoveEvaulation(mode, score, move);
-                
+                int valueAdd = MoveEvaulation(mode, move);
+                score += valueAdd; 
 
                 string temp = "Depth: " + Convert.ToString(depth) + ",Score :" + Convert.ToString(Evaluation(who, mode)) + ", AB Pruning Stage :MAX" + ",Who: " + who + ",Move :" + move;
                 tempFile.Add(temp);
 
                 UndoMove();
                 if (score >= beta)
+                {
+                    score -= valueAdd;
                     return beta;
+                }
                 if (score > alpha)
                 {
                     alpha = score;
+                    score -= valueAdd;
                     bestMove = move;
                 }
 
