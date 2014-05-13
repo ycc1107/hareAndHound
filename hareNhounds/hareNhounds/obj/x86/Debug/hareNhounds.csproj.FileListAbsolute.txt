@@ -10,3 +10,15 @@ c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\
 C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\font.xnb
 C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\easy.xnb
 C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\expert.xnb
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\hare.xnb
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\Hare_and_Hounds_board.xnb
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\hound.xnb
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\easy.xnb
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\expert.xnb
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\font.xnb
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\hareNhounds.exe
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\hareNhounds.pdb
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\obj\x86\Debug\hareNhounds.csprojResolveAssemblyReference.cache
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\obj\x86\Debug\hareNhounds.exe
+C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\obj\x86\Debug\hareNhounds.pdb

@@ -7,7 +7,7 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\hare.xnb</Output>
+      <Output>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\hare.xnb</Output>
       <Time>2014-04-20T16:09:32.9417115-04:00</Time>
     </Item>
     <Item>
@@ -16,7 +16,7 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\Hare_and_Hounds_board.xnb</Output>
+      <Output>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\Hare_and_Hounds_board.xnb</Output>
       <Time>2014-04-18T00:01:54.291155-04:00</Time>
     </Item>
     <Item>
@@ -25,17 +25,8 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>c:\users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\hound.xnb</Output>
+      <Output>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\hound.xnb</Output>
       <Time>2014-04-20T16:09:32.9427116-04:00</Time>
-    </Item>
-    <Item>
-      <Source>image\font.spritefont</Source>
-      <Name>image\font</Name>
-      <Importer>FontDescriptionImporter</Importer>
-      <Processor>FontDescriptionProcessor</Processor>
-      <Options>None</Options>
-      <Output>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\font.xnb</Output>
-      <Time>2014-05-10T18:00:58.9551762-04:00</Time>
     </Item>
     <Item>
       <Source>image\easy.jpg</Source>
@@ -43,7 +34,7 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\easy.xnb</Output>
+      <Output>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\easy.xnb</Output>
       <Time>2014-05-11T00:32:46.572735-04:00</Time>
     </Item>
     <Item>
@@ -52,8 +43,17 @@
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
       <Options>None</Options>
-      <Output>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\expert.xnb</Output>
+      <Output>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\expert.xnb</Output>
       <Time>2014-05-11T00:32:46.5747351-04:00</Time>
+    </Item>
+    <Item>
+      <Source>image\font.spritefont</Source>
+      <Name>image\font</Name>
+      <Importer>FontDescriptionImporter</Importer>
+      <Processor>FontDescriptionProcessor</Processor>
+      <Options>None</Options>
+      <Output>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\image\font.xnb</Output>
+      <Time>2014-05-10T18:00:58.9551762-04:00</Time>
     </Item>
     <BuildSuccessful>true</BuildSuccessful>
     <Settings>
@@ -62,10 +62,10 @@
       <TargetProfile>Reach</TargetProfile>
       <BuildConfiguration>Debug</BuildConfiguration>
       <CompressContent>false</CompressContent>
-      <RootDirectory>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhoundsContent\</RootDirectory>
-      <LoggerRootDirectory>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\</LoggerRootDirectory>
-      <IntermediateDirectory>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\obj\x86\Debug\</IntermediateDirectory>
-      <OutputDirectory>C:\Users\galaxyan\documents\visual studio 2012\Projects\hareNhounds\hareNhounds\hareNhounds\bin\x86\Debug\Content\</OutputDirectory>
+      <RootDirectory>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhoundsContent\</RootDirectory>
+      <LoggerRootDirectory>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\</LoggerRootDirectory>
+      <IntermediateDirectory>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\obj\x86\Debug\</IntermediateDirectory>
+      <OutputDirectory>C:\Users\galaxyan\Documents\GitHub\hareAndHound\hareNhounds\hareNhounds\bin\x86\Debug\Content\</OutputDirectory>
     </Settings>
     <Assemblies>
       <Assembly>

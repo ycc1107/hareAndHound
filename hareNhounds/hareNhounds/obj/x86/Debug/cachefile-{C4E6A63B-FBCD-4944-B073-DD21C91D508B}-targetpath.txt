@@ -1,6 +1,6 @@
 Content\image\hare.xnb
 Content\image\Hare_and_Hounds_board.xnb
 Content\image\hound.xnb
-Content\image\font.xnb
 Content\image\easy.xnb
 Content\image\expert.xnb
+Content\image\font.xnb
